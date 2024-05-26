@@ -28,20 +28,28 @@ src
                     │   ├── member
                     │   │   ├── Member.java
                     │   │   └── MemberRepository.java
-                    │   └── project
-                    │       ├── Project.java
-                    │       └── ProjectRepository.java
+                    │   ├── project
+                    │   │   ├── Project.java
+                    │   │   └── ProjectRepository.java
+                    │   └── ...
+                    │
                     ├── service
                     │   ├── MemberService.java
-                    │   └── ProjectService.java
+                    │   ├── ProjectService.java
+                    │   └── ...
+                    │
                     ├── controller
                     │   ├── MemberController.java
-                    │   └── ProjectController.java
+                    │   ├── ProjectController.java
+                    │   └── ...
+                    │
                     └── dto
                         ├── member
                         │   ├── MemberRequestDto.java
                         │   └── MemberResponseDto.java
-                        └── project
-                            ├── ProjectRequestDto.java
-                            └── ProjectResponseDto.java
+                        ├── project
+                        │   ├── ProjectRequestDto.java
+                        │   └── ProjectResponseDto.java
+                        │
+                        └── ...
  */
