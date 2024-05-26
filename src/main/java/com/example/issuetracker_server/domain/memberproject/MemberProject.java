@@ -3,13 +3,11 @@ package com.example.issuetracker_server.domain.memberproject;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.project.Project;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

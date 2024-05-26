@@ -4,13 +4,11 @@ import com.example.issuetracker_server.domain.BaseTimeEntity;
 import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.member.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
