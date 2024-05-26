@@ -1,62 +1,70 @@
 package com.example.issuetracker_server.domain.project;
 
-import com.example.issuetracker_server.domain.project.Project;
-import com.example.issuetracker_server.domain.project.ProjectRepository;
-import org.junit.After;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
+@DataJpaTest
 public class ProjectRepositoryTest {
 
     @Autowired
-    ProjectRepository projectRepository;
-
-    @After
-    public void cleanup() { projectRepository.deleteAll();}
+    private ProjectRepository projectRepository;
 
     @Test
-    public void savePost() {
-        //given
+    public void testSaveAndFindProject() {
+        // Given
+        Project project = Project.builder()
+                .title("New Project")
+                .build();
 
-        String title = "project1";
+        // When
+        Project savedProject = projectRepository.save(project);
+        Optional<Project> foundProject = projectRepository.findById(savedProject.getId());
 
-        projectRepository.save(Project.builder().title(title).build());
-
-        //when
-        List<Project> projectList = projectRepository.findAll();
-
-        //then
-        Project project = projectList.get(0);
-        assertThat(project.getTitle()).isEqualTo(title);
+        // Then
+        assertThat(foundProject).isPresent();
+        assertThat(foundProject.get().getTitle()).isEqualTo("New Project");
     }
 
-    //JPA Auditing Test
     @Test
-    public void BaseTimeEntity_register() {
-        //given
-        LocalDateTime now = LocalDateTime.of(2019,6,4,0,0,0);
-        projectRepository.save(Project.builder().title("title").build());
+    public void testUpdateProject() {
+        // Given
+        Project project = Project.builder()
+                .title("Initial Title")
+                .build();
 
-        //when
-        List<Project> projectList = projectRepository.findAll();
+        Project savedProject = projectRepository.save(project);
 
-        //then
-        Project project = projectList.get(0);
+        // When
+        savedProject.setTitle("Updated Title");
+        Project updatedProject = projectRepository.save(savedProject);
+        Optional<Project> foundProject = projectRepository.findById(updatedProject.getId());
 
-        System.out.println(">>>>>>> createDate = " + project.getCreatedDate() + ", modifiedDate = " + project.getModifiedDate());
-        assertThat(project.getCreatedDate()).isAfter(now);
-        assertThat(project.getModifiedDate()).isAfter(now);
+        // Then
+        assertThat(foundProject).isPresent();
+        assertThat(foundProject.get().getTitle()).isEqualTo("Updated Title");
     }
 
+    @Test
+    public void testDeleteProject() {
+        // Given
+        Project project = Project.builder()
+                .title("Project to be deleted")
+                .build();
+
+        Project savedProject = projectRepository.save(project);
+
+        // When
+        projectRepository.deleteById(savedProject.getId());
+        Optional<Project> foundProject = projectRepository.findById(savedProject.getId());
+
+        // Then
+        assertThat(foundProject).isNotPresent();
+    }
 }

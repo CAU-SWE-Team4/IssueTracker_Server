@@ -2,12 +2,13 @@ package com.example.issuetracker_server.domain.project;
 
 import com.example.issuetracker_server.domain.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Project extends BaseTimeEntity {
 
@@ -17,15 +18,5 @@ public class Project extends BaseTimeEntity {
 
     @Column(length = 500, nullable = false)
     private String title;
-
-    @Builder
-    public Project(String title) {
-        this.title = title;
-    }
-
-    // update, read
-    public void update(String title) {
-        this.title = title;
-    }
 
 }
