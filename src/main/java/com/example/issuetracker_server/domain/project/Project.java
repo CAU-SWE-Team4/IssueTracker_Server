@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Entity
-public class Project extends BaseTimeEntity{
+public class Project extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 500, nullable=false)
+    @Column(length = 500, nullable = false)
     private String title;
 
     @Builder
