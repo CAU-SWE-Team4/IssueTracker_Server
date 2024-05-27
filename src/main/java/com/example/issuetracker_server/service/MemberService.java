@@ -1,11 +1,11 @@
 package com.example.issuetracker_server.service;
 
-import com.example.issuetracker_server.dto.member.MemberLoginRequest;
-import com.example.issuetracker_server.dto.member.MemberSignUpRequest;
+import com.example.issuetracker_server.dto.member.MemberLoginRequestDto;
+import com.example.issuetracker_server.dto.member.MemberSignUpRequestDto;
 
 public interface MemberService {
 
-    boolean login(MemberLoginRequest request);
+    boolean login(MemberLoginRequestDto request);
 
-    void signUp(MemberSignUpRequest request);
+    void signUp(MemberSignUpRequestDto request);
 }
