@@ -90,7 +90,7 @@ public class ProjectApiControllerTest {
     @Test
     public void saveProject_Success() throws Exception {
         // given
-        String url = "http://localhost:" + port + "/project";
+        String url = "http://localhost:" + port + "/project/";
 
         Member adminMember = new Member();
         adminMember.setId("admin");
@@ -116,7 +116,7 @@ public class ProjectApiControllerTest {
     @Test
     public void saveProject_Fail() throws Exception {
         //given
-        String url = "http://localhost:" + port + "/project";
+        String url = "http://localhost:" + port + "/project/";
 
         Member userMember = new Member();
         userMember.setId("user");
