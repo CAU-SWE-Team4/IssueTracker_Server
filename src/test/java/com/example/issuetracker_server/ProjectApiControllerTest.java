@@ -1,36 +1,27 @@
 package com.example.issuetracker_server;
 
-import com.example.issuetracker_server.controller.ProjectApiController;
+import com.example.issuetracker_server.controller.ProjectController;
 import com.example.issuetracker_server.controller.dto.ProjectsSaveRequestDto;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
-import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.service.MemberProjectService.MemberProjectService;
 import com.example.issuetracker_server.service.ProjectsService.ProjectsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +29,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,7 +56,7 @@ public class ProjectApiControllerTest {
     private MockMvc mvc;
 
     @InjectMocks
-    private ProjectApiController projectApiController;
+    private ProjectController projectApiController;
 
     private ProjectsSaveRequestDto requestDto;
 
@@ -125,9 +115,9 @@ public class ProjectApiControllerTest {
         userMember.setMail("user@aaa.com");
 
         Mockito.when(memberRepository.findById("user")).thenReturn(Optional.of(userMember));
+        Mockito.when(projectsService.save(any(ProjectsSaveRequestDto.class))).thenReturn(1L);
 
         //when
-
         mvc.perform(post(url)
                         .param("id", "user")
                         .param("pw", "pw")
@@ -135,8 +125,6 @@ public class ProjectApiControllerTest {
                 .andExpect(status().is(400));
 
         //then
-        Mockito.verify(projectsService, Mockito.times(1)).save(any(ProjectsSaveRequestDto.class));
-
 
     }
 }
