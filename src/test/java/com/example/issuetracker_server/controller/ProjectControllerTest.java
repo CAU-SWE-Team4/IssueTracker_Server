@@ -5,7 +5,7 @@ import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
-import com.example.issuetracker_server.dto.project.ProjectSaveRequestDto;
+import com.example.issuetracker_server.dto.project.ProjectRequestDto;
 import com.example.issuetracker_server.service.member.MemberServiceImpl;
 import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
 import com.example.issuetracker_server.service.project.ProjectServiceImpl;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -72,19 +68,19 @@ public class ProjectControllerTest {
     @InjectMocks
     private ProjectController projectController;
 
-    private ProjectSaveRequestDto requestDto;
+    private ProjectRequestDto requestDto;
 
     String url = "http://localhost:" + port + "/project/";
     @BeforeEach
     public void setUp() {
         String title = "project1";
-        List<ProjectSaveRequestDto.Member> members = new ArrayList<>();
+        List<ProjectRequestDto.Member> members = new ArrayList<>();
 
-        members.add(new ProjectSaveRequestDto.Member("user1", Role.PL));
-        members.add(new ProjectSaveRequestDto.Member("user2", Role.DEV));
-        members.add(new ProjectSaveRequestDto.Member("user3", Role.TESTER));
+        members.add(new ProjectRequestDto.Member("user1", Role.PL));
+        members.add(new ProjectRequestDto.Member("user2", Role.DEV));
+        members.add(new ProjectRequestDto.Member("user3", Role.TESTER));
 
-        requestDto = ProjectSaveRequestDto.builder()
+        requestDto = ProjectRequestDto.builder()
                 .title(title)
                 .members(members)
                 .build();
@@ -103,7 +99,7 @@ public class ProjectControllerTest {
         adminMember.setMail("aaa@aaa.com");
 
         when(memberRepository.findById("admin")).thenReturn(Optional.of(adminMember));
-        when(projectsService.save(any(ProjectSaveRequestDto.class))).thenReturn(1L);
+        when(projectsService.saveDto(any(ProjectRequestDto.class))).thenReturn(1L);
 
         //when
         mvc.perform(post(url)
@@ -113,7 +109,7 @@ public class ProjectControllerTest {
                 .andExpect(status().isOk());
 
         //then
-        Mockito.verify(projectsService, Mockito.times(1)).save(any(ProjectSaveRequestDto.class));
+        Mockito.verify(projectsService, Mockito.times(1)).saveDto(any(ProjectRequestDto.class));
     }
 
     @Test
@@ -127,7 +123,7 @@ public class ProjectControllerTest {
         userMember.setMail("user@aaa.com");
 
         when(memberRepository.findById("user")).thenReturn(Optional.of(userMember));
-        when(projectsService.save(any(ProjectSaveRequestDto.class))).thenReturn(1L);
+        when(projectsService.saveDto(any(ProjectRequestDto.class))).thenReturn(1L);
 
         //when
         mvc.perform(post(url)

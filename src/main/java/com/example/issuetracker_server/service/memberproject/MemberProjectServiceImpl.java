@@ -7,7 +7,7 @@ import com.example.issuetracker_server.domain.memberproject.MemberProjectReposit
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
-import com.example.issuetracker_server.dto.project.ProjectSaveRequestDto;
+import com.example.issuetracker_server.dto.project.ProjectRequestDto;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
 import com.example.issuetracker_server.exception.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,14 +35,14 @@ public class MemberProjectServiceImpl implements MemberProjectService {
                 .orElseThrow(() -> new MemberNotFoundException("Member Not Found"));
     }
 
-    public MemberProject toEntity(Long projectId, ProjectSaveRequestDto.Member member) {
+    public MemberProject toEntity(Long projectId, ProjectRequestDto.Member member) {
         return MemberProject.builder().project(getProject(projectId)).member(getMember(member.getUser_id())).role(member.getRole()).build();
 
     }
 
     @Override
     @Transactional
-    public Long save(Long projectId, ProjectSaveRequestDto.Member member) {
+    public Long save(Long projectId, ProjectRequestDto.Member member) {
         return memberProjectRepository.save(toEntity(projectId, member)).getId();
     }
 
@@ -59,6 +59,15 @@ public class MemberProjectServiceImpl implements MemberProjectService {
         List<MemberProject> memberProjects = memberProjectRepository.findByMemberId(member_id);
         List<Long> projectIds = memberProjects.stream().map(memberProject -> memberProject.getProject().getId()).collect(Collectors.toList());
         return projectRepository.findByUserId(projectIds);
+    }
+
+    public List<MemberProject> getMemberProjectByProjectId(Long project_id) {
+
+        return memberProjectRepository.findByProjectId(project_id);
+    }
+
+    public void deleteAll(List<MemberProject> memberProjects) {
+        memberProjectRepository.deleteAll(memberProjects);
     }
 
 

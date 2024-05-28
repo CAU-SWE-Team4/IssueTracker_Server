@@ -2,11 +2,12 @@ package com.example.issuetracker_server.controller;
 
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
+import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.dto.project.ProjectDto;
-import com.example.issuetracker_server.dto.project.ProjectSaveRequestDto;
+import com.example.issuetracker_server.dto.project.ProjectRequestDto;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
 import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
 import com.example.issuetracker_server.service.project.ProjectServiceImpl;
@@ -15,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -37,10 +35,10 @@ public class ProjectController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Void> save(@RequestBody ProjectSaveRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
+    public ResponseEntity<Void> save(@RequestBody ProjectRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
         if (Objects.equals(id, "admin") && Objects.equals(getMember(id).getPassword(), pw)) {
-            Long projectId = projectService.save(requestDto);
-            for (ProjectSaveRequestDto.Member member : requestDto.getMembers()) {
+            Long projectId = projectService.saveDto(requestDto);
+            for (ProjectRequestDto.Member member : requestDto.getMembers()) {
                 memberprojectService.save(projectId, member);
             }
             return ResponseEntity.ok().build();
@@ -63,5 +61,34 @@ public class ProjectController {
         Map<String, List<ProjectDto>> response = new HashMap<>();
         response.put("projects", projectDtos);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{projectId}")
+    public ResponseEntity<?> updateProject(@PathVariable Long projectId, @RequestBody ProjectRequestDto requestDto, @RequestParam String userid, @RequestParam String pw) {
+        if(!memberService.login(userid, pw) && !Objects.equals(userid, "admin"))
+        {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Optional<Project> optionalProject = projectService.findById(projectId);
+        if(optionalProject.isPresent()) {
+            Project project = optionalProject.get();
+            if(requestDto.getTitle() != null)
+            {
+                projectService.update(projectId, requestDto);
+                return ResponseEntity.status(HttpStatus.OK).build();
+            }
+            if(requestDto.getMembers() != null)
+            {
+                List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
+                memberprojectService.deleteAll(memberProjects);
+                for (ProjectRequestDto.Member member : requestDto.getMembers()) {
+                    memberprojectService.save(projectId, member);
+                }
+                return ResponseEntity.status(HttpStatus.OK).build();
+
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
     }
 }
