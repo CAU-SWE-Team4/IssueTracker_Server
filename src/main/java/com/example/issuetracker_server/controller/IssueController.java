@@ -2,6 +2,7 @@ package com.example.issuetracker_server.controller;
 
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
+import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 import com.example.issuetracker_server.service.issue.IssueService;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectService;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -40,12 +42,24 @@ public class IssueController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<IssueResponse>> getIssues(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw,
-//                                                         @RequestParam(required = false) String sort, @RequestParam(required = false) String order) {
-//        List<IssueResponse> issues = issueService.getIssues(projectId, id, pw, sort, order);
-//        return ResponseEntity.ok(issues);
-//    }
+    @GetMapping
+    public ResponseEntity<List<IssueResponseDto>> getIssues(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw,
+                                                            @RequestParam(required = false) String sort, @RequestParam(required = false) String order) {
+
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        try {
+            List<IssueResponseDto> issues = issueService.getIssues(projectId, sort, order);
+            return ResponseEntity.ok(issues);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
 //
 //    @GetMapping("/{issueId}")
 //    public ResponseEntity<IssueDetailResponse> getIssue(@PathVariable Long projectId, @PathVariable Long issueId,
