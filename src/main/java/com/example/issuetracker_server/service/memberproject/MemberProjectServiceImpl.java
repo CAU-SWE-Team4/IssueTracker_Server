@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -50,4 +52,14 @@ public class MemberProjectServiceImpl implements MemberProjectService {
         return memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .map(MemberProject::getRole);
     }
+
+    @Override
+    @Transactional
+    public List<Project> getProjectIdByMemberId(String member_id){
+        List<MemberProject> memberProjects = memberProjectRepository.findByMemberId(member_id);
+        List<Long> projectIds = memberProjects.stream().map(memberProject -> memberProject.getProject().getId()).collect(Collectors.toList());
+        return projectRepository.findByUserId(projectIds);
+    }
+
+
 }
