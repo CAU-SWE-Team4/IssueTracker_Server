@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProjectsSaveRequestDto {
+public class ProjectSaveRequestDto {
 
     private String title;
     private List<Member> members;
@@ -23,7 +23,7 @@ public class ProjectsSaveRequestDto {
     }
 
     @Builder
-    public ProjectsSaveRequestDto(String title, List<Member> members) {
+    public ProjectSaveRequestDto(String title, List<Member> members) {
         this.title = title;
         this.members = members;
     }

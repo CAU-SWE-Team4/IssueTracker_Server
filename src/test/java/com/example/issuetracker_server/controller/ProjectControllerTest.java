@@ -4,9 +4,9 @@ import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
-import com.example.issuetracker_server.dto.project.ProjectsSaveRequestDto;
+import com.example.issuetracker_server.dto.project.ProjectSaveRequestDto;
 import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
-import com.example.issuetracker_server.service.project.ProjectsServiceImpl;
+import com.example.issuetracker_server.service.project.ProjectServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ public class ProjectControllerTest {
     private ProjectRepository projectRepository;
 
     @MockBean
-    private ProjectsServiceImpl projectsService;
+    private ProjectServiceImpl projectsService;
 
     @MockBean
     private MemberProjectServiceImpl memberProjectService;
@@ -56,18 +56,18 @@ public class ProjectControllerTest {
     @InjectMocks
     private ProjectController projectApiController;
 
-    private ProjectsSaveRequestDto requestDto;
+    private ProjectSaveRequestDto requestDto;
 
     @BeforeEach
     public void setUp() {
         String title = "project1";
-        List<ProjectsSaveRequestDto.Member> members = new ArrayList<>();
+        List<ProjectSaveRequestDto.Member> members = new ArrayList<>();
 
-        members.add(new ProjectsSaveRequestDto.Member("user1", Role.PL));
-        members.add(new ProjectsSaveRequestDto.Member("user2", Role.DEV));
-        members.add(new ProjectsSaveRequestDto.Member("user3", Role.TESTER));
+        members.add(new ProjectSaveRequestDto.Member("user1", Role.PL));
+        members.add(new ProjectSaveRequestDto.Member("user2", Role.DEV));
+        members.add(new ProjectSaveRequestDto.Member("user3", Role.TESTER));
 
-        requestDto = ProjectsSaveRequestDto.builder()
+        requestDto = ProjectSaveRequestDto.builder()
                 .title(title)
                 .members(members)
                 .build();
@@ -87,7 +87,7 @@ public class ProjectControllerTest {
         adminMember.setMail("aaa@aaa.com");
 
         Mockito.when(memberRepository.findById("admin")).thenReturn(Optional.of(adminMember));
-        Mockito.when(projectsService.save(any(ProjectsSaveRequestDto.class))).thenReturn(1L);
+        Mockito.when(projectsService.save(any(ProjectSaveRequestDto.class))).thenReturn(1L);
 
         //when
         mvc.perform(post(url)
@@ -97,7 +97,7 @@ public class ProjectControllerTest {
                 .andExpect(status().isOk());
 
         //then
-        Mockito.verify(projectsService, Mockito.times(1)).save(any(ProjectsSaveRequestDto.class));
+        Mockito.verify(projectsService, Mockito.times(1)).save(any(ProjectSaveRequestDto.class));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ProjectControllerTest {
         userMember.setMail("user@aaa.com");
 
         Mockito.when(memberRepository.findById("user")).thenReturn(Optional.of(userMember));
-        Mockito.when(projectsService.save(any(ProjectsSaveRequestDto.class))).thenReturn(1L);
+        Mockito.when(projectsService.save(any(ProjectSaveRequestDto.class))).thenReturn(1L);
 
         //when
         mvc.perform(post(url)

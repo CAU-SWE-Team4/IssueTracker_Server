@@ -3,10 +3,11 @@ package com.example.issuetracker_server.controller;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
-import com.example.issuetracker_server.dto.project.ProjectsSaveRequestDto;
+import com.example.issuetracker_server.dto.project.ProjectResponseDto;
+import com.example.issuetracker_server.dto.project.ProjectSaveRequestDto;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
 import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
-import com.example.issuetracker_server.service.project.ProjectsServiceImpl;
+import com.example.issuetracker_server.service.project.ProjectServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/project")
 public class ProjectController {
-    private final ProjectsServiceImpl projectsService;
+    private final ProjectServiceImpl projectService;
     private final MemberProjectServiceImpl memberprojectService;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
@@ -29,16 +30,22 @@ public class ProjectController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Void> save(@RequestBody ProjectsSaveRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
+    public ResponseEntity<Void> save(@RequestBody ProjectSaveRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
 
         // Member(id).password == pw && Member(id).Role == admin
         if (Objects.equals(id, "admin") && Objects.equals(getMember(id).getPassword(), pw)) {
-            Long projectId = projectsService.save(requestDto);
-            for (ProjectsSaveRequestDto.Member member : requestDto.getMembers()) {
+            Long projectId = projectService.save(requestDto);
+            for (ProjectSaveRequestDto.Member member : requestDto.getMembers()) {
                 memberprojectService.save(projectId, member);
             }
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @GetMapping("/")
+    public ProjectResponseDto findByUser(@PathVariable String id, @PathVariable String password)
+    {
+        return projectService.findByUer(id);
     }
 }
