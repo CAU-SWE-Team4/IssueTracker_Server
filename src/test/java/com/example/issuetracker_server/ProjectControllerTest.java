@@ -6,8 +6,8 @@ import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
-import com.example.issuetracker_server.service.MemberProjectService.MemberProjectService;
-import com.example.issuetracker_server.service.ProjectsService.ProjectsService;
+import com.example.issuetracker_server.service.MemberProjectService.MemberProjectServiceImpl;
+import com.example.issuetracker_server.service.ProjectsService.ProjectsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,10 +44,10 @@ public class ProjectControllerTest {
     private ProjectRepository projectRepository;
 
     @MockBean
-    private ProjectsService projectsService;
+    private ProjectsServiceImpl projectsService;
 
     @MockBean
-    private MemberProjectService memberProjectService;
+    private MemberProjectServiceImpl memberProjectService;
 
     @MockBean
     private MemberRepository memberRepository;

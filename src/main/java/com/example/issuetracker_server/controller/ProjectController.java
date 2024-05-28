@@ -5,8 +5,8 @@ import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
-import com.example.issuetracker_server.service.MemberProjectService.MemberProjectService;
-import com.example.issuetracker_server.service.ProjectsService.ProjectsService;
+import com.example.issuetracker_server.service.MemberProjectService.MemberProjectServiceImpl;
+import com.example.issuetracker_server.service.ProjectsService.ProjectsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,8 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/project")
 public class ProjectController {
-    private final ProjectsService projectsService;
-    private final MemberProjectService memberprojectService;
+    private final ProjectsServiceImpl projectsService;
+    private final MemberProjectServiceImpl memberprojectService;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
 
