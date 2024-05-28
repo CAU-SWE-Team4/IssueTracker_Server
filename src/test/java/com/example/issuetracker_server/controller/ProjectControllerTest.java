@@ -31,11 +31,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -109,7 +107,7 @@ public class ProjectControllerTest {
                 .andExpect(status().isOk());
 
         //then
-        Mockito.verify(projectsService, Mockito.times(1)).saveDto(any(ProjectRequestDto.class));
+        verify(projectsService, times(1)).saveDto(any(ProjectRequestDto.class));
     }
 
     @Test
@@ -174,5 +172,87 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.projects[1].title").value("Project 2"));
 
     }
+
+    @Test
+    public void updateProject_Success_TitleUpdate() throws Exception {
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(projectsService.findById(anyLong())).thenReturn(Optional.of(new Project()));
+
+        ProjectRequestDto updateRequestDto = ProjectRequestDto.builder()
+                .title("Updated Project Title")
+                .build();
+
+        mvc.perform(put(url + "1")
+                        .param("id", "admin")
+                        .param("pw", "password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateRequestDto)))
+                .andExpect(status().isOk());
+
+        verify(projectsService, times(1)).update(anyLong(), any(ProjectRequestDto.class));
+    }
+
+    @Test
+    public void updateProject_Unauthorized() throws Exception {
+        when(memberService.login(anyString(), anyString())).thenReturn(false);
+
+        ProjectRequestDto updateRequestDto = ProjectRequestDto.builder()
+                .title("Updated Project Title")
+                .build();
+
+        mvc.perform(put(url + "1")
+                        .param("id", "user")
+                        .param("pw", "wrongPassword")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateRequestDto)))
+                .andExpect(status().isUnauthorized());
+
+        verify(projectsService, never()).update(anyLong(), any(ProjectRequestDto.class));
+    }
+
+    @Test
+    public void updateProject_NotFound() throws Exception {
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
+
+        ProjectRequestDto updateRequestDto = ProjectRequestDto.builder()
+                .title("Updated Project Title")
+                .build();
+
+        mvc.perform(put(url + "1")
+                        .param("id", "admin")
+                        .param("pw", "password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateRequestDto)))
+                .andExpect(status().isNotFound());
+
+        verify(projectsService, never()).update(anyLong(), any(ProjectRequestDto.class));
+    }
+
+    @Test
+    public void updateProject_Success_MembersUpdate() throws Exception {
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(projectsService.findById(anyLong())).thenReturn(Optional.of(new Project()));
+        when(memberProjectService.getMemberProjectByProjectId(anyLong())).thenReturn(new ArrayList<>());
+
+        ProjectRequestDto updateRequestDto = ProjectRequestDto.builder()
+                .members(Arrays.asList(
+                        new ProjectRequestDto.Member("user1", Role.DEV),
+                        new ProjectRequestDto.Member("user2", Role.TESTER)
+                ))
+                .build();
+
+        mvc.perform(put(url + "1")
+                        .param("id", "admin")
+                        .param("pw", "password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateRequestDto)))
+                .andExpect(status().isOk());
+
+        verify(memberProjectService, times(1)).deleteAll(anyList());
+        verify(memberProjectService, times(2)).save(anyLong(), any(ProjectRequestDto.Member.class));
+    }
+
+
 
 }

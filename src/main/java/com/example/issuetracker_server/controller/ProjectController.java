@@ -64,8 +64,8 @@ public class ProjectController {
     }
 
     @PutMapping("/{projectId}")
-    public ResponseEntity<?> updateProject(@PathVariable Long projectId, @RequestBody ProjectRequestDto requestDto, @RequestParam String userid, @RequestParam String pw) {
-        if(!memberService.login(userid, pw) && !Objects.equals(userid, "admin"))
+    public ResponseEntity<?> updateProject(@PathVariable Long projectId, @RequestBody ProjectRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
+        if(!memberService.login(id, pw) && !Objects.equals(id, "admin"))
         {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
