@@ -1,4 +1,4 @@
-package com.example.issuetracker_server.service;
+package com.example.issuetracker_server.service.member;
 
 import com.example.issuetracker_server.dto.member.MemberInfoDto;
 import com.example.issuetracker_server.dto.member.MemberSignUpRequestDto;

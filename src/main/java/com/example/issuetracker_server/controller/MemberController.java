@@ -4,7 +4,7 @@ import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.dto.member.MemberInfoDto;
 import com.example.issuetracker_server.dto.member.MemberLoginRequestDto;
 import com.example.issuetracker_server.dto.member.MemberSignUpRequestDto;
-import com.example.issuetracker_server.service.MemberService;
+import com.example.issuetracker_server.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

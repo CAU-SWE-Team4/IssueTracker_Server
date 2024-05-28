@@ -1,7 +1,7 @@
-package com.example.issuetracker_server.service.ProjectsService;
+package com.example.issuetracker_server.service.project;
 
-import com.example.issuetracker_server.controller.dto.ProjectsSaveRequestDto;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
+import com.example.issuetracker_server.dto.project.ProjectsSaveRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,12 +1,12 @@
 package com.example.issuetracker_server.controller;
 
-import com.example.issuetracker_server.controller.dto.ProjectsSaveRequestDto;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
+import com.example.issuetracker_server.dto.project.ProjectsSaveRequestDto;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
-import com.example.issuetracker_server.service.MemberProjectService.MemberProjectServiceImpl;
-import com.example.issuetracker_server.service.ProjectsService.ProjectsServiceImpl;
+import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
+import com.example.issuetracker_server.service.project.ProjectsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +32,9 @@ public class ProjectController {
     public ResponseEntity<Void> save(@RequestBody ProjectsSaveRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
 
         // Member(id).password == pw && Member(id).Role == admin
-        if(Objects.equals(id, "admin") && Objects.equals(getMember(id).getPassword(), pw))
-        {
+        if (Objects.equals(id, "admin") && Objects.equals(getMember(id).getPassword(), pw)) {
             Long projectId = projectsService.save(requestDto);
-            for(ProjectsSaveRequestDto.Member member: requestDto.getMembers()) {
+            for (ProjectsSaveRequestDto.Member member : requestDto.getMembers()) {
                 memberprojectService.save(projectId, member);
             }
             return ResponseEntity.ok().build();

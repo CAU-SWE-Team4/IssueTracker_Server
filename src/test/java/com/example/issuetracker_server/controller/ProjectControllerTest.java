@@ -1,16 +1,15 @@
-package com.example.issuetracker_server;
+package com.example.issuetracker_server.controller;
 
-import com.example.issuetracker_server.controller.ProjectController;
-import com.example.issuetracker_server.controller.dto.ProjectsSaveRequestDto;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
-import com.example.issuetracker_server.service.MemberProjectService.MemberProjectServiceImpl;
-import com.example.issuetracker_server.service.ProjectsService.ProjectsServiceImpl;
+import com.example.issuetracker_server.dto.project.ProjectsSaveRequestDto;
+import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
+import com.example.issuetracker_server.service.project.ProjectsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,7 +58,7 @@ public class ProjectControllerTest {
 
     private ProjectsSaveRequestDto requestDto;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         String title = "project1";
         List<ProjectsSaveRequestDto.Member> members = new ArrayList<>();
@@ -88,14 +86,13 @@ public class ProjectControllerTest {
         adminMember.setName("admin");
         adminMember.setMail("aaa@aaa.com");
 
-
         Mockito.when(memberRepository.findById("admin")).thenReturn(Optional.of(adminMember));
         Mockito.when(projectsService.save(any(ProjectsSaveRequestDto.class))).thenReturn(1L);
 
         //when
         mvc.perform(post(url)
-                .param("id", "admin")
-                .param("pw", "password")
+                        .param("id", "admin")
+                        .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON_UTF8).content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk());
 

@@ -1,16 +1,13 @@
-package com.example.issuetracker_server.controller.dto;
+package com.example.issuetracker_server.dto.project;
 
-import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import lombok.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class ProjectsSaveRequestDto {
 
@@ -30,6 +27,7 @@ public class ProjectsSaveRequestDto {
         this.title = title;
         this.members = members;
     }
+
     public Project projectToEntity() {
         return Project.builder().title(title).build();
     }

@@ -1,12 +1,12 @@
-package com.example.issuetracker_server.service.MemberProjectService;
+package com.example.issuetracker_server.service.memberproject;
 
-import com.example.issuetracker_server.controller.dto.ProjectsSaveRequestDto;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.MemberProjectRepository;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
+import com.example.issuetracker_server.dto.project.ProjectsSaveRequestDto;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
 import com.example.issuetracker_server.exception.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-public class MemberProjectServiceImpl implements MemberProjectService{
+public class MemberProjectServiceImpl implements MemberProjectService {
     private final MemberProjectRepository memberProjectRepository;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
@@ -37,8 +37,7 @@ public class MemberProjectServiceImpl implements MemberProjectService{
 
     @Override
     @Transactional
-    public Long save(Long projectId, ProjectsSaveRequestDto.Member member)
-    {
+    public Long save(Long projectId, ProjectsSaveRequestDto.Member member) {
         return memberProjectRepository.save(toEntity(projectId, member)).getId();
     }
 
