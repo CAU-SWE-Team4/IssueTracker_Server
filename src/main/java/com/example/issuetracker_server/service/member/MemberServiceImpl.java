@@ -1,4 +1,4 @@
-package com.example.issuetracker_server.service;
+package com.example.issuetracker_server.service.member;
 
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;

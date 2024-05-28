@@ -3,7 +3,7 @@ package com.example.issuetracker_server.controller;
 import com.example.issuetracker_server.dto.member.MemberInfoDto;
 import com.example.issuetracker_server.dto.member.MemberLoginRequestDto;
 import com.example.issuetracker_server.dto.member.MemberSignUpRequestDto;
-import com.example.issuetracker_server.service.MemberService;
+import com.example.issuetracker_server.service.member.MemberService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
