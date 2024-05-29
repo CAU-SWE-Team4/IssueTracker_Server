@@ -66,7 +66,7 @@ public class IssueServiceImpl implements IssueService {
                 issues = issueRepository.findByProjectIdOrderByCreatedDateDesc(projectId);
         } else
             issues = issueRepository.findByProjectIdOrderByTitleAsc(projectId); // Default sorting
-        
+
         return issues.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
@@ -87,4 +87,11 @@ public class IssueServiceImpl implements IssueService {
                 .modifiedDate(issue.getModifiedDate().toString())
                 .build();
     }
+
+    @Override
+    public Optional<IssueResponseDto> getIssue(Long projectId, Long issueId) {
+        Optional<Issue> issue = issueRepository.findById(issueId);
+        return issue.map(this::toDto);
+    }
+
 }
