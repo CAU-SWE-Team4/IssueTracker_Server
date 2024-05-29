@@ -5,6 +5,7 @@ import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
+import com.example.issuetracker_server.dto.project.UserRoleDto;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.dto.project.ProjectDto;
@@ -114,5 +115,24 @@ public class ProjectController {
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @GetMapping("/{projectId}/userRole")
+    public ResponseEntity<?> getProjectUserRoles(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw) {
+        if(!memberService.login(id,pw)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Project> optionalProject = projectService.findById(projectId);
+        if(optionalProject.isPresent()) {
+            List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
+            List<UserRoleDto> userRoles = memberProjects.stream()
+                    .map(mp -> new UserRoleDto(mp.getMember().getId(), mp.getRole()))
+                    .collect(Collectors.toList());
+            return ResponseEntity.status(HttpStatus.OK).body(userRoles);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
     }
 }
