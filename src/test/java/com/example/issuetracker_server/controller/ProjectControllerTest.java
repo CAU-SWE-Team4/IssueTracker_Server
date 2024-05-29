@@ -254,7 +254,7 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void deletProject_Unauthorized_NotPermission() throws Exception {
+    public void deleteProject_Unauthorized_NotPermission() throws Exception {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(memberProjectService.getRole(anyString(), anyLong())).thenReturn(Optional.of(Role.TESTER));
 
