@@ -30,4 +30,9 @@ public class MemberProject {
     @Column(length = 10, nullable = false)
     private Role role;
 
+    public MemberProject(Member member, Project project, Role role) {
+        this.member = member;
+        this.project = project;
+        this.role = role;
+    }
 }

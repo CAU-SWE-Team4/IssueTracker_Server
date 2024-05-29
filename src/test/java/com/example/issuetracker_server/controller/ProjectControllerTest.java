@@ -2,6 +2,7 @@ package com.example.issuetracker_server.controller;
 
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
+import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
@@ -34,8 +35,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -287,6 +287,41 @@ public class ProjectControllerTest {
                         .param("pw", "password"))
                 .andExpect(status().isOk());
 
+    }
+
+    @Test
+    public void getProjectUserRoles_NotFound() throws Exception {
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
+
+        mvc.perform(get(url + "1/userRole")
+                .param("id", "user")
+                .param("pw", "password"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getProjectUserRoles_Success() throws Exception {
+        Project project1 = new Project();
+        project1.setTitle("project1");
+        project1.setId(1L);
+
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(projectsService.findById(anyLong())).thenReturn(Optional.of(project1));
+        when(memberProjectService.getMemberProjectByProjectId(anyLong())).thenReturn(Arrays.asList(
+                new MemberProject(new Member("user1", "user1", "user1", "user1"), project1, Role.DEV),
+                new MemberProject(new Member("user2", "user2", "user2", "user1"), project1, Role.TESTER)
+        ));
+
+        mvc.perform(get(url + "1/userRole")
+                        .param("id", "admin")
+                        .param("pw", "password"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].userId").value("user1"))
+                .andExpect(jsonPath("$[0].role").value(Role.DEV.name()))
+                .andExpect(jsonPath("$[1].userId").value("user2"))
+                .andExpect(jsonPath("$[1].role").value(Role.TESTER.name()));
     }
 
 
