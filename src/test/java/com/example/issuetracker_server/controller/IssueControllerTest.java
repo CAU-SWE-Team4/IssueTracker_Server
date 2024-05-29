@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
@@ -403,5 +404,95 @@ public class IssueControllerTest {
                 .andExpect(jsonPath("$.length()", is(2)))
                 .andExpect(jsonPath("$[0].state", is("ASSIGNED")))
                 .andExpect(jsonPath("$[1].state", is("NEW")));
+    }
+
+    @Test
+    public void testGetIssueUnauthorized() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        when(memberService.login(id, pw)).thenReturn(false);
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testGetIssueForbidden() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.empty());
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetIssueNotFound() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
+        when(issueService.getIssue(projectId, issueId)).thenReturn(Optional.empty());
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testGetIssueSuccess() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        IssueResponseDto issueResponseDto = new IssueResponseDto(1L, projectId, "Issue 1", "Description 1", id, null, null, null, null, "2022-01-01", "2022-01-01");
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
+        when(issueService.getIssue(projectId, issueId)).thenReturn(Optional.of(issueResponseDto));
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title", is("Issue 1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description", is("Description 1")));
     }
 }
