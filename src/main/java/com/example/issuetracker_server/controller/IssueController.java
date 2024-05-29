@@ -60,13 +60,22 @@ public class IssueController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-//
-//    @GetMapping("/{issueId}")
-//    public ResponseEntity<IssueDetailResponse> getIssue(@PathVariable Long projectId, @PathVariable Long issueId,
-//                                                        @RequestParam String id, @RequestParam String pw) {
-//        IssueDetailResponse issueDetail = issueService.getIssue(projectId, issueId, id, pw);
-//        return ResponseEntity.ok(issueDetail);
-//    }
+
+    @GetMapping("/{issueId}")
+    public ResponseEntity<IssueResponseDto> getIssue(@PathVariable Long projectId, @PathVariable Long issueId,
+                                                     @RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        Optional<IssueResponseDto> issueDetail = issueService.getIssue(projectId, issueId);
+        if (issueDetail.isPresent())
+            return ResponseEntity.ok(issueDetail.get());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 //
 //    @GetMapping("/{issueId}/recommend")
 //    public ResponseEntity<RecommendationResponse> recommendAssignee(@PathVariable Long projectId, @PathVariable Long issueId,
