@@ -144,7 +144,7 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void FindByUserAdmin_Succecc() throws Exception {
+    public void FindByUserAdmin_Success() throws Exception {
         when(memberService.login(anyString(),anyString())).thenReturn(true);
 
         Project project1 = new Project();
