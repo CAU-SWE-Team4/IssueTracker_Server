@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -36,5 +35,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public Optional<Project> findById(Long id) {
         return projectRepository.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        projectRepository.deleteById(id);
     }
 }

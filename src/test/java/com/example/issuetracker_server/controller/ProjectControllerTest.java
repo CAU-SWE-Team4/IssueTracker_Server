@@ -253,6 +253,41 @@ public class ProjectControllerTest {
         verify(memberProjectService, times(2)).save(anyLong(), any(ProjectRequestDto.Member.class));
     }
 
+    @Test
+    public void deletProject_Unauthorized_NotPermission() throws Exception {
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(memberProjectService.getRole(anyString(), anyLong())).thenReturn(Optional.of(Role.TESTER));
+
+        mvc.perform(delete(url + "1")
+                .param("id", "user")
+                .param("pw", "wrongpassword"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void deleteProject_NotFound() throws Exception {
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
+
+        mvc.perform(delete(url + "1")
+                .param("id", "admin")
+                .param("pw", "password"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void deleteProject_Success() throws Exception {
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(projectsService.findById(anyLong())).thenReturn(Optional.of(new Project()));
+        doNothing().when(memberProjectService).deleteAll(anyList());
+        doNothing().when(projectsService).delete(anyLong());
+
+        mvc.perform(delete(url + "1")
+                        .param("id", "admin")
+                        .param("pw", "password"))
+                .andExpect(status().isOk());
+
+    }
 
 
 }

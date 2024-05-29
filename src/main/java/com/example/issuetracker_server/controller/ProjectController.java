@@ -3,6 +3,7 @@ package com.example.issuetracker_server.controller;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
+import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,5 +92,27 @@ public class ProjectController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
+    }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw) {
+        Optional<Role> role = memberprojectService.getRole(id, projectId);
+        if(!memberService.login(id,pw) || (!Objects.equals(id,"admin") && role.get() != Role.PL)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Project> optionalProject = projectService.findById(projectId);
+        if(optionalProject.isPresent()) {
+            //관련된 MemberProject 삭제
+            List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
+            memberprojectService.deleteAll(memberProjects);
+
+            // project 삭제
+            projectService.delete(projectId);
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }
