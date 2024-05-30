@@ -2,6 +2,7 @@ package com.example.issuetracker_server.service.issue;
 
 import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.issue.IssueRepository;
+import com.example.issuetracker_server.domain.issue.Priority;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
@@ -127,5 +128,22 @@ public class IssueServiceImpl implements IssueService {
                 .limit(5)
                 .map(entry -> entry.getKey().getId()) // Assignee의 id를 String으로 변환
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean assignIssue(Long projectId, Long issueId, String memberId, Priority priority) {
+        Optional<MemberProject> memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId);
+        if (memberProject.isEmpty() || memberProject.get().getRole() != Role.DEV)
+            return false;
+        Member assignee = memberProject.get().getMember();
+
+        Optional<Issue> issue = issueRepository.findById(issueId);
+        if (issue.isEmpty())
+            return false;
+
+        issue.get().setAssignee(assignee);
+        issue.get().setPriority(priority);
+        issueRepository.save(issue.get());
+        return true;
     }
 }

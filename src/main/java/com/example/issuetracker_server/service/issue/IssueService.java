@@ -1,6 +1,7 @@
 package com.example.issuetracker_server.service.issue;
 
 
+import com.example.issuetracker_server.domain.issue.Priority;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 
@@ -16,4 +17,6 @@ public interface IssueService {
     Optional<IssueResponseDto> getIssue(Long projectId, Long issueId);
 
     List<String> getRecommendAssignee(Long projectId, Long issueId);
+
+    boolean assignIssue(Long projectId, Long issueId, String memberId, Priority priority);
 }
