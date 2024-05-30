@@ -318,9 +318,9 @@ public class ProjectControllerTest {
                         .param("pw", "password"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].userId").value("user1"))
+                .andExpect(jsonPath("$[0].user_id").value("user1"))
                 .andExpect(jsonPath("$[0].role").value(Role.DEV.name()))
-                .andExpect(jsonPath("$[1].userId").value("user2"))
+                .andExpect(jsonPath("$[1].user_id").value("user2"))
                 .andExpect(jsonPath("$[1].role").value(Role.TESTER.name()));
     }
 
