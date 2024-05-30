@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class IssueServiceImpl {
+public class IssueServiceImpl implements IssueService{
 
     private final IssueRepository issueRepository;
     public Optional<Issue> getIssue(Long issueId) {
