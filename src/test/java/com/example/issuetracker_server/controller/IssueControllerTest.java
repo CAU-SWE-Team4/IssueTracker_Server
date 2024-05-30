@@ -1,12 +1,15 @@
 package com.example.issuetracker_server.controller;
 
+import com.example.issuetracker_server.domain.issue.Priority;
 import com.example.issuetracker_server.domain.issue.State;
 import com.example.issuetracker_server.domain.memberproject.Role;
+import com.example.issuetracker_server.dto.issue.IssueAssignRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 import com.example.issuetracker_server.service.issue.IssueService;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,8 +30,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -497,33 +499,6 @@ public class IssueControllerTest {
     }
 
     @Test
-    public void testGetRecommendAssigneeSuccess() throws Exception {
-        // Given
-        String id = "testuser";
-        String pw = "password";
-        Long projectId = 1L;
-        Long issueId = 1L;
-        List<String> recommendedAssignees = List.of("user1", "user2", "user3");
-
-        when(memberService.login(id, pw)).thenReturn(true);
-        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
-        when(issueService.getRecommendAssignee(projectId, issueId)).thenReturn(recommendedAssignees);
-
-        // When
-        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId + "/recommend")
-                        .param("id", id)
-                        .param("pw", pw)
-                        .param("projectId", String.valueOf(projectId))
-                        .contentType(MediaType.APPLICATION_JSON))
-
-                // Then
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0]", is("user1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1]", is("user2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2]", is("user3")));
-    }
-
-    @Test
     public void testGetRecommendAssigneeUnauthorized() throws Exception {
         // Given
         String id = "testuser";
@@ -566,4 +541,135 @@ public class IssueControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    public void testGetRecommendAssigneeSuccess() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        List<String> recommendedAssignees = List.of("user1", "user2", "user3");
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
+        when(issueService.getRecommendAssignee(projectId, issueId)).thenReturn(recommendedAssignees);
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId + "/recommend")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("projectId", String.valueOf(projectId))
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0]", is("user1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1]", is("user2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2]", is("user3")));
+    }
+
+    @Test
+    public void testAssignIssueUnauthorized() throws Exception {
+        // Given
+        ObjectMapper objectMapper = new ObjectMapper();
+        String id = "testuser";
+        String pw = "wrongpassword";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        IssueAssignRequestDto request = new IssueAssignRequestDto();
+        request.setUserId("user1");
+        request.setPriority(Priority.HIGH);
+
+        when(memberService.login(id, pw)).thenReturn(false);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/assign")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("projectId", String.valueOf(projectId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // Then
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testAssignIssueForbidden() throws Exception {
+        // Given
+        ObjectMapper objectMapper = new ObjectMapper();
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        IssueAssignRequestDto request = new IssueAssignRequestDto();
+        request.setUserId("user1");
+        request.setPriority(Priority.HIGH);
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/assign")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("projectId", String.valueOf(projectId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testAssignIssueBadRequest() throws Exception {
+        // Given
+        ObjectMapper objectMapper = new ObjectMapper();
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        IssueAssignRequestDto request = new IssueAssignRequestDto();
+        request.setUserId("user1");
+        request.setPriority(Priority.HIGH);
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
+        when(issueService.assignIssue(projectId, issueId, request.getUserId(), request.getPriority())).thenReturn(false);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/assign")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("projectId", String.valueOf(projectId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testAssignIssueSuccess() throws Exception {
+        // Given
+        ObjectMapper objectMapper = new ObjectMapper();
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        IssueAssignRequestDto request = new IssueAssignRequestDto();
+        request.setUserId("user1");
+        request.setPriority(Priority.HIGH);
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
+        when(issueService.assignIssue(projectId, issueId, request.getUserId(), request.getPriority())).thenReturn(true);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/assign")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("projectId", String.valueOf(projectId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // Then
+                .andExpect(status().isOk());
+    }
 }
