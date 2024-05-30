@@ -14,4 +14,6 @@ public interface IssueService {
     List<IssueResponseDto> getIssues(Long projectId, String sort, String order);
 
     Optional<IssueResponseDto> getIssue(Long projectId, Long issueId);
+
+    List<String> getRecommendAssignee(Long projectId, Long issueId);
 }

@@ -4,6 +4,9 @@ import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.issue.IssueRepository;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
+import com.example.issuetracker_server.domain.memberproject.MemberProject;
+import com.example.issuetracker_server.domain.memberproject.MemberProjectRepository;
+import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
@@ -12,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,6 +28,7 @@ public class IssueServiceImpl implements IssueService {
     private final MemberRepository memberRepository;
 
     private final ProjectRepository projectRepository;
+    private final MemberProjectRepository memberProjectRepository;
 
     @Override
     public boolean createIssue(Long projectId, String memberId, IssueCreateRequestDto request) {
@@ -94,4 +99,33 @@ public class IssueServiceImpl implements IssueService {
         return issue.map(this::toDto);
     }
 
+    @Override
+    public List<String> getRecommendAssignee(Long projectId, Long issueId) {
+        List<Member> devs = memberProjectRepository.findByProjectIdAndRole(projectId, Role.DEV).stream()
+                .map(MemberProject::getMember).toList();
+        Map<Member, Long> assigneeCount = devs.stream()
+                .collect(Collectors.toMap(member -> member, member -> 0L));
+
+        List<Issue> issues = issueRepository.findByProjectId(projectId).stream()
+                .filter(issue -> issue.getFixer() == null && issue.getAssignee() != null)
+                .toList();
+
+        // 이슈의 assignee에 따라 assigneeCount 맵의 값을 증가
+        issues.forEach(issue -> {
+            Member assignee = issue.getAssignee();
+            assigneeCount.put(assignee, assigneeCount.get(assignee) + 1);
+        });
+
+        // 결과를 이슈 수에 따라 오름차순으로 정렬
+        List<Map.Entry<Member, Long>> sortedAssigneeList = assigneeCount.entrySet().stream()
+                .sorted(Map.Entry.<Member, Long>comparingByValue()
+                        .thenComparing(entry -> entry.getKey().getId()))
+                .toList();
+
+        // 이슈 수가 가장 적은 5명의 String id 추출
+        return sortedAssigneeList.stream()
+                .limit(5)
+                .map(entry -> entry.getKey().getId()) // Assignee의 id를 String으로 변환
+                .collect(Collectors.toList());
+    }
 }
