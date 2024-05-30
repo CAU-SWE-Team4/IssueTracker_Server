@@ -2,26 +2,34 @@ package com.example.issuetracker_server.controller;
 
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
+import com.example.issuetracker_server.domain.memberproject.MemberProject;
+import com.example.issuetracker_server.domain.memberproject.Role;
+import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
-import com.example.issuetracker_server.dto.project.ProjectsSaveRequestDto;
+import com.example.issuetracker_server.dto.project.ProjectDto;
+import com.example.issuetracker_server.dto.project.ProjectRequestDto;
+import com.example.issuetracker_server.dto.project.UserRoleDto;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
+import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
-import com.example.issuetracker_server.service.project.ProjectsServiceImpl;
+import com.example.issuetracker_server.service.project.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/project")
 public class ProjectController {
-    private final ProjectsServiceImpl projectsService;
+    private final ProjectService projectService;
     private final MemberProjectServiceImpl memberprojectService;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     public Member getMember(String id) {
         return memberRepository.findById(id)
@@ -29,16 +37,96 @@ public class ProjectController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Void> save(@RequestBody ProjectsSaveRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
-
-        // Member(id).password == pw && Member(id).Role == admin
+    public ResponseEntity<Void> save(@RequestBody ProjectRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
         if (Objects.equals(id, "admin") && Objects.equals(getMember(id).getPassword(), pw)) {
-            Long projectId = projectsService.save(requestDto);
-            for (ProjectsSaveRequestDto.Member member : requestDto.getMembers()) {
+            Long projectId = projectService.saveDto(requestDto);
+            for (ProjectRequestDto.Member member : requestDto.getMembers()) {
                 memberprojectService.save(projectId, member);
             }
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<?> findByUser(@RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<Project> projects = memberprojectService.getProjectIdByMemberId(id);
+        List<ProjectDto> projectDtos = projects.stream()
+                .map(project -> new ProjectDto(project.getId(), project.getTitle(), project.getCreatedDate().toString()))
+                .collect(Collectors.toList());
+        Map<String, List<ProjectDto>> response = new HashMap<>();
+        response.put("projects", projectDtos);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{projectId}")
+    public ResponseEntity<?> updateProject(@PathVariable Long projectId, @RequestBody ProjectRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw) && !Objects.equals(id, "admin")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Optional<Project> optionalProject = projectService.findById(projectId);
+        if (optionalProject.isPresent()) {
+            Project project = optionalProject.get();
+            if (requestDto.getTitle() != null) {
+                projectService.update(projectId, requestDto);
+                return ResponseEntity.status(HttpStatus.OK).build();
+            }
+            if (requestDto.getMembers() != null) {
+                List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
+                memberprojectService.deleteAll(memberProjects);
+                for (ProjectRequestDto.Member member : requestDto.getMembers()) {
+                    memberprojectService.save(projectId, member);
+                }
+                return ResponseEntity.status(HttpStatus.OK).build();
+
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+    }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw) {
+        Optional<Role> role = memberprojectService.getRole(id, projectId);
+        if (!memberService.login(id, pw) || (!Objects.equals(id, "admin") && role.get() != Role.PL)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Project> optionalProject = projectService.findById(projectId);
+        if (optionalProject.isPresent()) {
+            //관련된 MemberProject 삭제
+            List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
+            memberprojectService.deleteAll(memberProjects);
+
+            // project 삭제
+            projectService.delete(projectId);
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @GetMapping("/{projectId}/userRole")
+    public ResponseEntity<?> getProjectUserRoles(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Project> optionalProject = projectService.findById(projectId);
+        if (optionalProject.isPresent()) {
+            List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
+            List<UserRoleDto> userRoles = memberProjects.stream()
+                    .map(mp -> new UserRoleDto(mp.getMember().getId(), mp.getRole()))
+                    .collect(Collectors.toList());
+            return ResponseEntity.status(HttpStatus.OK).body(userRoles);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
     }
 }

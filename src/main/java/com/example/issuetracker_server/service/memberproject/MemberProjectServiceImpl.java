@@ -7,14 +7,16 @@ import com.example.issuetracker_server.domain.memberproject.MemberProjectReposit
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
-import com.example.issuetracker_server.dto.project.ProjectsSaveRequestDto;
+import com.example.issuetracker_server.dto.project.ProjectRequestDto;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
 import com.example.issuetracker_server.exception.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -33,14 +35,14 @@ public class MemberProjectServiceImpl implements MemberProjectService {
                 .orElseThrow(() -> new MemberNotFoundException("Member Not Found"));
     }
 
-    public MemberProject toEntity(Long projectId, ProjectsSaveRequestDto.Member member) {
+    public MemberProject toEntity(Long projectId, ProjectRequestDto.Member member) {
         return MemberProject.builder().project(getProject(projectId)).member(getMember(member.getUser_id())).role(member.getRole()).build();
 
     }
 
     @Override
     @Transactional
-    public Long save(Long projectId, ProjectsSaveRequestDto.Member member) {
+    public Long save(Long projectId, ProjectRequestDto.Member member) {
         return memberProjectRepository.save(toEntity(projectId, member)).getId();
     }
 
@@ -50,4 +52,23 @@ public class MemberProjectServiceImpl implements MemberProjectService {
         return memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .map(MemberProject::getRole);
     }
+
+    @Override
+    @Transactional
+    public List<Project> getProjectIdByMemberId(String member_id){
+        List<MemberProject> memberProjects = memberProjectRepository.findByMemberId(member_id);
+        List<Long> projectIds = memberProjects.stream().map(memberProject -> memberProject.getProject().getId()).collect(Collectors.toList());
+        return projectRepository.findByUserId(projectIds);
+    }
+
+    public List<MemberProject> getMemberProjectByProjectId(Long project_id) {
+
+        return memberProjectRepository.findByProjectId(project_id);
+    }
+
+    public void deleteAll(List<MemberProject> memberProjects) {
+        memberProjectRepository.deleteAll(memberProjects);
+    }
+
+
 }

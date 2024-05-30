@@ -21,6 +21,7 @@ public class MemberProject {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @Getter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
@@ -29,4 +30,9 @@ public class MemberProject {
     @Column(length = 10, nullable = false)
     private Role role;
 
+    public MemberProject(Member member, Project project, Role role) {
+        this.member = member;
+        this.project = project;
+        this.role = role;
+    }
 }
