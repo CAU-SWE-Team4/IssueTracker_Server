@@ -58,7 +58,7 @@ public class MemberProjectServiceImpl implements MemberProjectService {
     public List<Project> getProjectIdByMemberId(String member_id){
         List<MemberProject> memberProjects = memberProjectRepository.findByMemberId(member_id);
         List<Long> projectIds = memberProjects.stream().map(memberProject -> memberProject.getProject().getId()).collect(Collectors.toList());
-        return projectRepository.findByUserId(projectIds);
+        return projectRepository.findByIds(projectIds);
     }
 
     public List<MemberProject> getMemberProjectByProjectId(Long project_id) {
