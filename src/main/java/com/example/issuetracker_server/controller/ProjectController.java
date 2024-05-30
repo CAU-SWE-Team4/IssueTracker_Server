@@ -5,20 +5,19 @@ import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
-import com.example.issuetracker_server.dto.project.UserRoleDto;
-import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.dto.project.ProjectDto;
 import com.example.issuetracker_server.dto.project.ProjectRequestDto;
+import com.example.issuetracker_server.dto.project.UserRoleDto;
 import com.example.issuetracker_server.exception.MemberNotFoundException;
+import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
-import com.example.issuetracker_server.service.project.ProjectServiceImpl;
+import com.example.issuetracker_server.service.project.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/project")
 public class ProjectController {
-    private final ProjectServiceImpl projectService;
+    private final ProjectService projectService;
     private final MemberProjectServiceImpl memberprojectService;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
@@ -50,10 +49,8 @@ public class ProjectController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> findByUser(@RequestParam String id, @RequestParam String pw)
-    {
-        if(!memberService.login(id, pw))
-        {
+    public ResponseEntity<?> findByUser(@RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -68,20 +65,17 @@ public class ProjectController {
 
     @PutMapping("/{projectId}")
     public ResponseEntity<?> updateProject(@PathVariable Long projectId, @RequestBody ProjectRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
-        if(!memberService.login(id, pw) && !Objects.equals(id, "admin"))
-        {
+        if (!memberService.login(id, pw) && !Objects.equals(id, "admin")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Optional<Project> optionalProject = projectService.findById(projectId);
-        if(optionalProject.isPresent()) {
+        if (optionalProject.isPresent()) {
             Project project = optionalProject.get();
-            if(requestDto.getTitle() != null)
-            {
+            if (requestDto.getTitle() != null) {
                 projectService.update(projectId, requestDto);
                 return ResponseEntity.status(HttpStatus.OK).build();
             }
-            if(requestDto.getMembers() != null)
-            {
+            if (requestDto.getMembers() != null) {
                 List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
                 memberprojectService.deleteAll(memberProjects);
                 for (ProjectRequestDto.Member member : requestDto.getMembers()) {
@@ -98,12 +92,12 @@ public class ProjectController {
     @DeleteMapping("/{projectId}")
     public ResponseEntity<?> deleteProject(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw) {
         Optional<Role> role = memberprojectService.getRole(id, projectId);
-        if(!memberService.login(id,pw) || (!Objects.equals(id,"admin") && role.get() != Role.PL)) {
+        if (!memberService.login(id, pw) || (!Objects.equals(id, "admin") && role.get() != Role.PL)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         Optional<Project> optionalProject = projectService.findById(projectId);
-        if(optionalProject.isPresent()) {
+        if (optionalProject.isPresent()) {
             //관련된 MemberProject 삭제
             List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
             memberprojectService.deleteAll(memberProjects);
@@ -119,12 +113,12 @@ public class ProjectController {
 
     @GetMapping("/{projectId}/userRole")
     public ResponseEntity<?> getProjectUserRoles(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw) {
-        if(!memberService.login(id,pw)) {
+        if (!memberService.login(id, pw)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         Optional<Project> optionalProject = projectService.findById(projectId);
-        if(optionalProject.isPresent()) {
+        if (optionalProject.isPresent()) {
             List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
             List<UserRoleDto> userRoles = memberProjects.stream()
                     .map(mp -> new UserRoleDto(mp.getMember().getId(), mp.getRole()))
