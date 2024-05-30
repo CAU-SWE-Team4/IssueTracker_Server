@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
@@ -83,7 +84,6 @@ public class IssueControllerTest {
 
         when(memberService.login(id, pw)).thenReturn(true);
         when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.DEV));
-        boolean result = memberService.login(id, pw);
 
         // When
         mockMvc.perform(post("/project/" + projectId + "/issue")
@@ -495,4 +495,75 @@ public class IssueControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", is("Issue 1")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description", is("Description 1")));
     }
+
+    @Test
+    public void testGetRecommendAssigneeSuccess() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        List<String> recommendedAssignees = List.of("user1", "user2", "user3");
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
+        when(issueService.getRecommendAssignee(projectId, issueId)).thenReturn(recommendedAssignees);
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId + "/recommend")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("projectId", String.valueOf(projectId))
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0]", is("user1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1]", is("user2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2]", is("user3")));
+    }
+
+    @Test
+    public void testGetRecommendAssigneeUnauthorized() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "wrongpassword";
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        when(memberService.login(id, pw)).thenReturn(false);
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId + "/recommend")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("projectId", String.valueOf(projectId))
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testGetRecommendAssigneeForbidden() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId + "/recommend")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("projectId", String.valueOf(projectId))
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
 }
