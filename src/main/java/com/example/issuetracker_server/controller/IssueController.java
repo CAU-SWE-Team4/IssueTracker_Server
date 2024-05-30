@@ -76,13 +76,21 @@ public class IssueController {
             return ResponseEntity.ok(issueDetail.get());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
-//
-//    @GetMapping("/{issueId}/recommend")
-//    public ResponseEntity<RecommendationResponse> recommendAssignee(@PathVariable Long projectId, @PathVariable Long issueId,
-//                                                                    @RequestParam String id, @RequestParam String pw) {
-//        RecommendationResponse recommendation = issueService.recommendAssignee(projectId, issueId, id, pw);
-//        return ResponseEntity.ok(recommendation);
-//    }
+
+    @GetMapping("/{issueId}/recommend")
+    public ResponseEntity<List<String>> getRecommendAssignee(@PathVariable Long projectId, @PathVariable Long issueId,
+                                                             @RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty() || role.get() != Role.PL) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<String> response = issueService.getRecommendAssignee(projectId, issueId);
+        return ResponseEntity.ok(response);
+    }
 //
 //    @PutMapping("/{issueId}/assign")
 //    public ResponseEntity<Void> assignIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
