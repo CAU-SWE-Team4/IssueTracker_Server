@@ -1,6 +1,7 @@
 package com.example.issuetracker_server.controller;
 
 import com.example.issuetracker_server.domain.memberproject.Role;
+import com.example.issuetracker_server.dto.issue.IssueAssignRequest;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 import com.example.issuetracker_server.service.issue.IssueService;
@@ -84,21 +85,29 @@ public class IssueController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         Optional<Role> role = memberProjectService.getRole(id, projectId);
-        if (role.isEmpty() || role.get() != Role.PL) {
+        if (role.isEmpty() || role.get() != Role.PL)
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
 
         List<String> response = issueService.getRecommendAssignee(projectId, issueId);
         return ResponseEntity.ok(response);
     }
-//
-//    @PutMapping("/{issueId}/assign")
-//    public ResponseEntity<Void> assignIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
-//                                            @RequestBody AssignmentRequest request) {
-//        issueService.assignIssue(projectId, issueId, id, pw, request);
-//        return ResponseEntity.ok().build();
-//    }
-//
+
+    @PutMapping("/{issueId}/assign")
+    public ResponseEntity<Void> assignIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
+                                            @RequestBody IssueAssignRequest request) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty() || role.get() != Role.PL)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        boolean result = issueService.assignIssue(projectId, issueId, request.getUserId(), request.getPriority());
+        if (result)
+            return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
 //    @PutMapping("/{issueId}/content")
 //    public ResponseEntity<Void> updateIssueContent(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
 //                                                   @RequestBody IssueRequest request) {
