@@ -1,7 +1,7 @@
 package com.example.issuetracker_server.controller;
 
 import com.example.issuetracker_server.domain.memberproject.Role;
-import com.example.issuetracker_server.dto.issue.IssueAssignRequest;
+import com.example.issuetracker_server.dto.issue.IssueAssignRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 import com.example.issuetracker_server.service.issue.IssueService;
@@ -94,7 +94,7 @@ public class IssueController {
 
     @PutMapping("/{issueId}/assign")
     public ResponseEntity<Void> assignIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
-                                            @RequestBody IssueAssignRequest request) {
+                                            @RequestBody IssueAssignRequestDto request) {
         if (!memberService.login(id, pw))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
