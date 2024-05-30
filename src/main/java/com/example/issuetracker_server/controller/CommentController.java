@@ -4,6 +4,7 @@ import com.example.issuetracker_server.domain.comment.Comment;
 import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.dto.comment.CommentRequestDto;
+import com.example.issuetracker_server.dto.comment.CommentResponseDto;
 import com.example.issuetracker_server.dto.member.MemberInfoDto;
 import com.example.issuetracker_server.service.comment.CommentService;
 import com.example.issuetracker_server.service.comment.CommentServiceImpl;
@@ -78,7 +79,7 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<Comment> comments = commentService.findByIssueId(issueId);
+        List<CommentResponseDto> comments = commentService.findByIssueId(issueId);
         return ResponseEntity.ok(comments);
     }
 

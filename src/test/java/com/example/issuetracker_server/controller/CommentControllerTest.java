@@ -5,6 +5,7 @@ import com.example.issuetracker_server.domain.comment.CommentRepository;
 import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.dto.comment.CommentRequestDto;
+import com.example.issuetracker_server.dto.comment.CommentResponseDto;
 import com.example.issuetracker_server.service.comment.CommentServiceImpl;
 import com.example.issuetracker_server.service.issue.IssueServiceImpl;
 import com.example.issuetracker_server.service.member.MemberServiceImpl;
@@ -27,6 +28,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -123,21 +125,23 @@ public class CommentControllerTest {
 
     @Test
     public void getComments_Success() throws Exception {
-        Comment comment1 = new Comment();
-        comment1.setId(1L);
+        CommentResponseDto comment1 = new CommentResponseDto();
+        comment1.setComment_id(1L);
         comment1.setContent("Test Comment 1");
-        comment1.setAuthor(new Member("user1", "password", "User One", "ROLE_USER"));
-        comment1.setCreatedDate(LocalDateTime.now());
+        comment1.setAuthor_id("user1");
+        comment1.setCreated_date(String.valueOf(LocalDateTime.now()));
+        comment1.setAuthor_name("username");
 
-        Comment comment2 = new Comment();
-        comment2.setId(2L);
+        CommentResponseDto comment2 = new CommentResponseDto();
+        comment2.setComment_id(2L);
         comment2.setContent("Test Comment 2");
-        comment2.setAuthor(new Member("user2", "password", "User Two", "ROLE_USER"));
-        comment2.setCreatedDate(LocalDateTime.now());
+        comment2.setAuthor_id("user2");
+        comment2.setCreated_date(String.valueOf(LocalDateTime.now()));
+        comment2.setAuthor_name("user2name");
 
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(memberService.isMemberOfProject(anyLong(), anyString())).thenReturn(true);
-        when(commentService.findByIssueId(anyLong())).thenReturn(Arrays.asList(comment1, comment2));
+        when(commentService.findByIssueId(anyLong())).thenReturn((List<CommentResponseDto>) Arrays.asList(comment1, comment2));
 
         mvc.perform(get(url + "1/issue/1/comment/")
                         .param("id", "user1")
