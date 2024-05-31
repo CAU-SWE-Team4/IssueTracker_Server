@@ -251,6 +251,103 @@ public class IssueControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void testGetIssueSuccess() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 2L;
+
+        IssueResponseDto issue = IssueResponseDto.builder()
+                .id(issueId)
+                .title("issue title")
+                .description("issue description")
+                .state(State.NEW)
+                .build();
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
+        when(issueService.getIssue(projectId, issueId)).thenReturn(Optional.of(issue));
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(issueId))
+                .andExpect(jsonPath("$.title").value("issue title"))
+                .andExpect(jsonPath("$.description").value("issue description"))
+                .andExpect(jsonPath("$.state").value(State.NEW.toString()));
+    }
+
+    @Test
+    public void testGetIssueUnauthorized() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "wrongpassword";
+        Long projectId = 1L;
+        Long issueId = 2L;
+
+        when(memberService.login(id, pw)).thenReturn(false);
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testGetIssueForbidden() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 2L;
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.empty());
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetIssueNotFound() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        Long issueId = 2L;
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
+        when(issueService.getIssue(projectId, issueId)).thenReturn(Optional.empty());
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isNotFound());
+    }
+
 
     @Test
     public void testGetRecommendAssigneeUnauthorized() throws Exception {
