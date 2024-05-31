@@ -6,6 +6,7 @@ import com.example.issuetracker_server.dto.issue.IssueAssignRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 import com.example.issuetracker_server.dto.issue.IssueStateRequest;
+import com.example.issuetracker_server.dto.issue.IssueStatisticResponseDto;
 import com.example.issuetracker_server.service.issue.IssueService;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectService;
@@ -48,9 +49,8 @@ public class IssueController {
     }
 
 
-    @GetMapping("/{issueId}")
+    @GetMapping
     public ResponseEntity<List<IssueResponseDto>> getIssues(@PathVariable Long projectId,
-                                                            @PathVariable Long issueId,
                                                             @RequestParam String id,
                                                             @RequestParam String pw,
                                                             @RequestParam(required = false) String filterBy,
@@ -68,6 +68,34 @@ public class IssueController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+
+    @GetMapping("/{issueId}")
+    public ResponseEntity<IssueResponseDto> getIssue(@PathVariable Long projectId, @PathVariable Long issueId,
+                                                     @RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        Optional<IssueResponseDto> issue = issueService.getIssue(projectId, issueId);
+
+        if (issue.isPresent())
+            return ResponseEntity.ok(issue.get());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @GetMapping("/statistic")
+    public ResponseEntity<IssueStatisticResponseDto> getStatistic(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        return ResponseEntity.ok(issueService.getStatistic(projectId));
     }
 
 
