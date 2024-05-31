@@ -47,32 +47,14 @@ public class IssueController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<IssueResponseDto>> getIssues(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw,
-//                                                            @RequestParam(required = false) String sort, @RequestParam(required = false) String order) {
-//
-//        if (!memberService.login(id, pw))
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//
-//        Optional<Role> role = memberProjectService.getRole(id, projectId);
-//        if (role.isEmpty())
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//
-//        try {
-//            List<IssueResponseDto> issues = issueService.getIssues(projectId, sort, order);
-//            return ResponseEntity.ok(issues);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//        }
-//    }
 
     @GetMapping("/{issueId}")
     public ResponseEntity<List<IssueResponseDto>> getIssues(@PathVariable Long projectId,
                                                             @PathVariable Long issueId,
                                                             @RequestParam String id,
                                                             @RequestParam String pw,
-                                                            @RequestParam String filterBy,
-                                                            @RequestParam String filterValue) {
+                                                            @RequestParam(required = false) String filterBy,
+                                                            @RequestParam(required = false) String filterValue) {
         if (!memberService.login(id, pw))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
@@ -88,21 +70,6 @@ public class IssueController {
         }
     }
 
-    @GetMapping("/{issueId}")
-    public ResponseEntity<IssueResponseDto> getIssue(@PathVariable Long projectId, @PathVariable Long issueId,
-                                                     @RequestParam String id, @RequestParam String pw) {
-        if (!memberService.login(id, pw))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        Optional<Role> role = memberProjectService.getRole(id, projectId);
-        if (role.isEmpty())
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-
-        Optional<IssueResponseDto> issueDetail = issueService.getIssue(projectId, issueId);
-        if (issueDetail.isPresent())
-            return ResponseEntity.ok(issueDetail.get());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
 
     @GetMapping("/{issueId}/recommend")
     public ResponseEntity<Map<String, List<String>>> getRecommendAssignee(@PathVariable Long projectId, @PathVariable Long issueId,

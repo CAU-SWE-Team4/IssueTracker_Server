@@ -9,9 +9,10 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 
     List<Issue> findByProjectIdAndTitleContainingIgnoreCase(Long projectId, String title);
 
-    List<Issue> findByProjectIdAndReporterContainingIgnoreCase(Long projectId, String reporter);
+    List<Issue> findByProjectIdAndReporterIdContainingIgnoreCase(Long projectId, String reporter);
 
-    List<Issue> findByProjectIdAndAssigneeContainingIgnoreCase(Long projectId, String assignee);
+    List<Issue> findByProjectIdAndAssigneeIdContainingIgnoreCase(Long projectId, String assignee);
 
-    List<Issue> findByProjectIdAndStateContainingIgnoreCase(Long projectId, String state);
+    List<Issue> findByProjectIdAndState(Long projectId, State state);
+
 }

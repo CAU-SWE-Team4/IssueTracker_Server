@@ -115,13 +115,13 @@ public class IssueServiceTest {
                 .state(State.NEW)
                 .build();
 
-        when(issueRepository.findByProjectIdAndReporterContainingIgnoreCase(projectId, filterValue))
+        when(issueRepository.findByProjectIdAndReporterIdContainingIgnoreCase(projectId, filterValue))
                 .thenReturn(Arrays.asList(issue1, issue2));
 
         List<IssueResponseDto> result = issueService.getIssues(projectId, filterBy, filterValue);
 
         assertEquals(2, result.size());
-        verify(issueRepository, times(1)).findByProjectIdAndReporterContainingIgnoreCase(projectId, filterValue);
+        verify(issueRepository, times(1)).findByProjectIdAndReporterIdContainingIgnoreCase(projectId, filterValue);
     }
 
     @Test
@@ -157,13 +157,13 @@ public class IssueServiceTest {
                 .state(State.NEW)
                 .build();
 
-        when(issueRepository.findByProjectIdAndAssigneeContainingIgnoreCase(projectId, filterValue))
+        when(issueRepository.findByProjectIdAndAssigneeIdContainingIgnoreCase(projectId, filterValue))
                 .thenReturn(Arrays.asList(issue1, issue2));
 
         List<IssueResponseDto> result = issueService.getIssues(projectId, filterBy, filterValue);
 
         assertEquals(2, result.size());
-        verify(issueRepository, times(1)).findByProjectIdAndAssigneeContainingIgnoreCase(projectId, filterValue);
+        verify(issueRepository, times(1)).findByProjectIdAndAssigneeIdContainingIgnoreCase(projectId, filterValue);
     }
 
     @Test
@@ -211,13 +211,13 @@ public class IssueServiceTest {
                 .state(State.ASSIGNED)
                 .build();
 
-        when(issueRepository.findByProjectIdAndStateContainingIgnoreCase(projectId, filterValue))
+        when(issueRepository.findByProjectIdAndState(projectId,  State.valueOf(filterValue)))
                 .thenReturn(Arrays.asList(issue1, issue2));
 
         List<IssueResponseDto> result = issueService.getIssues(projectId, filterBy, filterValue);
 
         assertEquals(2, result.size());
-        verify(issueRepository, times(1)).findByProjectIdAndStateContainingIgnoreCase(projectId, filterValue);
+        verify(issueRepository, times(1)).findByProjectIdAndState(projectId,  State.valueOf(filterValue));
     }
 
     @Test

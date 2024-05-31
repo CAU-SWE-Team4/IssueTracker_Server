@@ -65,13 +65,13 @@ public class IssueServiceImpl implements IssueService {
                 issues = issueRepository.findByProjectIdAndTitleContainingIgnoreCase(projectId, filterValue);
                 break;
             case "reporter":
-                issues = issueRepository.findByProjectIdAndReporterContainingIgnoreCase(projectId, filterValue);
+                issues = issueRepository.findByProjectIdAndReporterIdContainingIgnoreCase(projectId, filterValue);
                 break;
             case "assignee":
-                issues = issueRepository.findByProjectIdAndAssigneeContainingIgnoreCase(projectId, filterValue);
+                issues = issueRepository.findByProjectIdAndAssigneeIdContainingIgnoreCase(projectId, filterValue);
                 break;
             case "state":
-                issues = issueRepository.findByProjectIdAndStateContainingIgnoreCase(projectId, filterValue);
+                issues = issueRepository.findByProjectIdAndState(projectId, State.valueOf(filterValue));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid filter criteria");
