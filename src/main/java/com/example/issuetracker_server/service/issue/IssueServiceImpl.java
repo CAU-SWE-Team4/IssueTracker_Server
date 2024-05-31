@@ -13,9 +13,11 @@ import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
+import com.example.issuetracker_server.dto.issue.IssueStatisticResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -106,6 +108,29 @@ public class IssueServiceImpl implements IssueService {
     public Optional<IssueResponseDto> getIssue(Long projectId, Long issueId) {
         Optional<Issue> issue = issueRepository.findById(issueId);
         return issue.map(this::toDto);
+    }
+
+    @Override
+    public IssueStatisticResponseDto getStatistic(Long ProjectId)
+    {
+        List<Issue> issues = issueRepository.findByProjectId(ProjectId);
+
+        int dayIssues = (int) issues.stream()
+                .filter(issue -> issue.getCreatedDate().toLocalDate().equals(LocalDate.now()))
+                .count();
+
+        int monthIssues = (int) issues.stream()
+                .filter(issue -> issue.getCreatedDate().toLocalDate().getMonth() == LocalDate.now().getMonth() &&
+                        issue.getCreatedDate().toLocalDate().getYear() == LocalDate.now().getYear())
+                .count();
+
+        int totalIssues = issues.size();
+
+        int closedIssues = (int) issues.stream()
+                .filter(issue -> issue.getState() == State.CLOSED)
+                .count();
+
+        return new IssueStatisticResponseDto(dayIssues, monthIssues, totalIssues, closedIssues);
     }
 
     @Override

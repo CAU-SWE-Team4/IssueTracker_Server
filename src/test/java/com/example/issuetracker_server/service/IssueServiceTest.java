@@ -10,6 +10,7 @@ import com.example.issuetracker_server.domain.memberproject.MemberProjectReposit
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
+import com.example.issuetracker_server.dto.issue.IssueStatisticResponseDto;
 import com.example.issuetracker_server.service.issue.IssueServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -745,4 +748,113 @@ public class IssueServiceTest {
         assertFalse(result);
         verify(issueRepository, times(0)).delete(any());
     }
+
+    @Test
+    public void testGetStatistic() {
+        // Given
+        Long projectId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+
+        Issue issueTodayClosed = new Issue();
+        issueTodayClosed.setTitle("Issue Today Closed");
+        issueTodayClosed.setDescription("Description");
+        issueTodayClosed.setPriority(Priority.MEDIUM);
+        issueTodayClosed.setState(State.CLOSED);
+        issueTodayClosed.setCreatedDate(LocalDateTime.now());
+
+        Issue issueTodayOpen = new Issue();
+        issueTodayOpen.setTitle("Issue Today Open");
+        issueTodayOpen.setDescription("Description");
+        issueTodayOpen.setPriority(Priority.HIGH);
+        issueTodayOpen.setState(State.NEW);
+        issueTodayOpen.setCreatedDate(LocalDateTime.now());
+
+        Issue issueMonth = new Issue();
+        issueMonth.setTitle("Issue Month");
+        issueMonth.setDescription("Description");
+        issueMonth.setPriority(Priority.LOW);
+        issueMonth.setState(State.NEW);
+        issueMonth.setCreatedDate(now.minusDays(31));
+
+        Issue issueOld = new Issue();
+        issueOld.setTitle("Issue Old");
+        issueOld.setDescription("Description");
+        issueOld.setPriority(Priority.LOW);
+        issueOld.setState(State.CLOSED);
+        issueOld.setCreatedDate(now.minusYears(1));
+
+        List<Issue> issues = Arrays.asList(issueTodayClosed, issueTodayOpen, issueMonth, issueOld);
+
+        when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
+
+        // When
+        IssueStatisticResponseDto statistics = issueService.getStatistic(projectId);
+
+        // Then
+        assertEquals(2, statistics.getDay_issues());
+        assertEquals(2, statistics.getMonth_issues());
+        assertEquals(4, statistics.getTotal_issues());
+        assertEquals(2, statistics.getClosed_issues());
+    }
+
+    @Test
+    public void testGetStatisticWithNoIssues() {
+        // Given
+        Long projectId = 2L;
+
+        List<Issue> issues = Collections.emptyList();
+
+        when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
+
+        // When
+        IssueStatisticResponseDto statistics = issueService.getStatistic(projectId);
+
+        // Then
+        assertEquals(0, statistics.getDay_issues());
+        assertEquals(0, statistics.getMonth_issues());
+        assertEquals(0, statistics.getTotal_issues());
+        assertEquals(0, statistics.getClosed_issues());
+    }
+
+    @Test
+    public void testGetStatisticWithMixedIssues() {
+        // Given
+        Long projectId = 3L;
+        LocalDateTime now = LocalDateTime.now();
+
+        Issue issueTodayClosed = new Issue();
+        issueTodayClosed.setTitle("Issue Today Closed");
+        issueTodayClosed.setDescription("Description");
+        issueTodayClosed.setPriority(Priority.HIGH);
+        issueTodayClosed.setState(State.CLOSED);
+        issueTodayClosed.setCreatedDate(LocalDateTime.now());
+
+        Issue issueWeekOpen = new Issue();
+        issueWeekOpen.setTitle("Issue Week Open");
+        issueWeekOpen.setDescription("Description");
+        issueWeekOpen.setPriority(Priority.MEDIUM);
+        issueWeekOpen.setState(State.NEW);
+        issueWeekOpen.setCreatedDate(now.minusDays(31));
+
+        Issue issueMonthClosed = new Issue();
+        issueMonthClosed.setTitle("Issue Month Closed");
+        issueMonthClosed.setDescription("Description");
+        issueMonthClosed.setPriority(Priority.LOW);
+        issueMonthClosed.setState(State.CLOSED);
+        issueMonthClosed.setCreatedDate(now.minusDays(62));
+
+        List<Issue> issues = Arrays.asList(issueTodayClosed, issueWeekOpen, issueMonthClosed);
+
+        when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
+
+        // When
+        IssueStatisticResponseDto statistics = issueService.getStatistic(projectId);
+
+        // Then
+        assertEquals(1, statistics.getDay_issues());
+        assertEquals(1, statistics.getMonth_issues());
+        assertEquals(3, statistics.getTotal_issues());
+        assertEquals(2, statistics.getClosed_issues());
+    }
+
 }
