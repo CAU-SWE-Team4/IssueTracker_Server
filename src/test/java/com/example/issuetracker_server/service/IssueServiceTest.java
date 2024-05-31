@@ -391,11 +391,15 @@ public class IssueServiceTest {
         State newState = State.RESOLVED;
 
         Issue mockIssue = new Issue();
+        mockIssue.setId(issueId);
         Project mockProject = new Project();
         mockProject.setId(projectId);
         Member mockReporter = new Member();
         mockReporter.setId("differentTester123");
+        Member mockAssignee = new Member();
+        mockAssignee.setId("assignee123");
         mockIssue.setReporter(mockReporter);
+        mockIssue.setAssignee(mockAssignee);
         mockIssue.setProject(mockProject);
         mockIssue.setState(State.FIXED);
 
@@ -436,5 +440,61 @@ public class IssueServiceTest {
         verify(issueRepository, times(0)).save(mockIssue);
     }
 
+    @Test
+    void deleteIssue_Success() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        Issue mockIssue = new Issue();
+        mockIssue.setId(issueId);
+        Project mockProject = new Project();
+        mockProject.setId(projectId);
+        mockIssue.setProject(mockProject);
 
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.deleteIssue(projectId, issueId);
+
+        // Then
+        assertTrue(result);
+        verify(issueRepository, times(1)).delete(mockIssue);
+    }
+
+    @Test
+    void deleteIssue_Failure_IssueNotFound() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.empty());
+
+        // When
+        boolean result = issueService.deleteIssue(projectId, issueId);
+
+        // Then
+        assertFalse(result);
+        verify(issueRepository, times(0)).delete(any());
+    }
+
+    @Test
+    void deleteIssue_Failure_ProjectIdMismatch() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        Issue mockIssue = new Issue();
+        mockIssue.setId(issueId);
+        Project mockProject = new Project();
+        mockProject.setId(2L); // Different project ID
+        mockIssue.setProject(mockProject);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.deleteIssue(projectId, issueId);
+
+        // Then
+        assertFalse(result);
+        verify(issueRepository, times(0)).delete(any());
+    }
 }
