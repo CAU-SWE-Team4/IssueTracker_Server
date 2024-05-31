@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class IssueAssignRequestDto {
     @NotEmpty
-    private String userId;
+    private String user_id;
 
     @NotEmpty
     private Priority priority;

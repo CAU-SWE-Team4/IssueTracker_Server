@@ -12,14 +12,14 @@ import lombok.*;
 public class IssueResponseDto {
 
     private Long id;
-    private Long projectId;
+    private Long project_id;
     private String title;
     private String description;
-    private String reporterId;
-    private String assigneeId;
-    private String fixerId;
+    private String reporter_id;
+    private String assignee_id;
+    private String fixer_id;
     private Priority priority;
     private State state;
-    private String createdDate;
-    private String modifiedDate;
+    private String created_date;
+    private String modified_date;
 }
