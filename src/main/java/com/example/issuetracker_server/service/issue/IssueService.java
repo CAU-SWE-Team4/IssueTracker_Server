@@ -7,6 +7,7 @@ import com.example.issuetracker_server.domain.issue.State;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
+import com.example.issuetracker_server.dto.issue.IssueStatisticResponseDto;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ public interface IssueService {
     List<IssueResponseDto> getIssues(Long projectId, String filterBy, String filterValue);
 
     Optional<IssueResponseDto> getIssue(Long projectId, Long issueId);
+
+    IssueStatisticResponseDto getStatistic(Long ProjectId);
 
     Map<String, List<String>> getRecommendAssignee(Long projectId, Long issueId);
 
