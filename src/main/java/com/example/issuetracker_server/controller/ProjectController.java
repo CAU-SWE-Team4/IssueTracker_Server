@@ -43,7 +43,6 @@ public class ProjectController {
         if (!memberService.login(id, pw))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        System.out.println(new ObjectMapper().writeValueAsString(requestDto));
         if (Objects.equals(id, "admin")) {
 
             Long projectId = projectService.saveDto(requestDto);
