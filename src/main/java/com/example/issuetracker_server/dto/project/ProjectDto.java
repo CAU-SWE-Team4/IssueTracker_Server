@@ -11,7 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 public class ProjectDto {
     private Long project_id;
+
+    @NotEmpty
     private String title;
+
     private String created_at;
 
     public ProjectDto(Long project_id, String title, String created_at) {

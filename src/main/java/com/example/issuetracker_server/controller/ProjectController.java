@@ -13,6 +13,8 @@ import com.example.issuetracker_server.exception.MemberNotFoundException;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
 import com.example.issuetracker_server.service.project.ProjectService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +38,14 @@ public class ProjectController {
                 .orElseThrow(() -> new MemberNotFoundException("Member Not Found"));
     }
 
-    @PostMapping("/")
-    public ResponseEntity<Void> save(@RequestBody ProjectRequestDto requestDto, @RequestParam String id, @RequestParam String pw) {
-        if (Objects.equals(id, "admin") && Objects.equals(getMember(id).getPassword(), pw)) {
+    @PostMapping
+    public ResponseEntity<Void> save(@RequestBody ProjectRequestDto requestDto, @RequestParam String id, @RequestParam String pw) throws JsonProcessingException {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        System.out.println(new ObjectMapper().writeValueAsString(requestDto));
+        if (Objects.equals(id, "admin")) {
+
             Long projectId = projectService.saveDto(requestDto);
             for (ProjectRequestDto.Member member : requestDto.getMembers()) {
                 memberprojectService.save(projectId, member);
@@ -48,7 +55,7 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<?> findByUser(@RequestParam String id, @RequestParam String pw) {
         if (!memberService.login(id, pw)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
