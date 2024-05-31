@@ -22,7 +22,7 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody MemberLoginRequestDto request) {
-        boolean isAuthenticated = memberService.login(request.getUserId(), request.getPassword());
+        boolean isAuthenticated = memberService.login(request.getUser_id(), request.getPassword());
         if (isAuthenticated) {
             return ResponseEntity.ok().build();
         } else {

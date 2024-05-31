@@ -31,13 +31,13 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public boolean signUp(MemberSignUpRequestDto request) {
         try {
-            if (memberRepository.findById(request.getUserId()).isPresent())
+            if (memberRepository.findById(request.getUser_id()).isPresent())
                 return false;
             Member member = Member.builder()
-                    .id(request.getUserId())
+                    .id(request.getUser_id())
                     .password(request.getPassword())
                     .name(request.getName())
-                    .mail(request.getMail())
+                    .mail(request.getEmail())
                     .build();
 
             memberRepository.save(member);
@@ -54,8 +54,8 @@ public class MemberServiceImpl implements MemberService {
         if (memberOptional.isPresent()) {
             MemberInfoDto response = new MemberInfoDto();
             response.setName(memberOptional.get().getName());
-            response.setMail(memberOptional.get().getMail());
-            response.setUserId(memberOptional.get().getId());
+            response.setEmail(memberOptional.get().getMail());
+            response.setUser_id(memberOptional.get().getId());
             return Optional.of(response);
         } else {
             return Optional.empty();
