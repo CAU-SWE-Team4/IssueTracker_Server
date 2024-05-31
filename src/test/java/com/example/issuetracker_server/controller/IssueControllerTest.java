@@ -30,8 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
@@ -140,6 +139,118 @@ public class IssueControllerTest {
                 // Then
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void testGetIssuesSuccess() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        String filterBy = "state";
+        String filterValue = "open";
+
+        List<IssueResponseDto> issues = new ArrayList<>();
+        issues.add(IssueResponseDto.builder()
+                .id(1L)
+                .title("issue title")
+                .description("issue description")
+                .state(State.NEW).build());
+        issues.add(IssueResponseDto.builder()
+                .id(2L)
+                .title("issue title2")
+                .description("issue description2")
+                .state(State.ASSIGNED).build());
+
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
+        when(issueService.getIssues(projectId, filterBy, filterValue)).thenReturn(issues);
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("filterBy", filterBy)
+                        .param("filterValue", filterValue)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].title").value("issue title"))
+                .andExpect(jsonPath("$[0].description").value("issue description"))
+                .andExpect(jsonPath("$[0].state").value(State.NEW.toString()))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].title").value("issue title2"))
+                .andExpect(jsonPath("$[1].description").value("issue description2"))
+                .andExpect(jsonPath("$[1].state").value(State.ASSIGNED.toString()));
+    }
+
+    @Test
+    public void testGetIssuesUnauthorized() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "wrongpassword";
+        Long projectId = 1L;
+
+        when(memberService.login(id, pw)).thenReturn(false);
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testGetIssuesForbidden() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.empty());
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetIssuesBadRequest() throws Exception {
+        // Given
+        String id = "testuser";
+        String pw = "password";
+        Long projectId = 1L;
+        String filterBy = "invalidFilter";
+        String filterValue = "value";
+
+        when(memberService.login(id, pw)).thenReturn(true);
+        when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
+        when(issueService.getIssues(projectId, filterBy, filterValue)).thenThrow(new RuntimeException());
+
+        // When
+        mockMvc.perform(get("/project/" + projectId + "/issue")
+                        .param("id", id)
+                        .param("pw", pw)
+                        .param("filterBy", filterBy)
+                        .param("filterValue", filterValue)
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isBadRequest());
+    }
+
 
     @Test
     public void testGetRecommendAssigneeUnauthorized() throws Exception {
