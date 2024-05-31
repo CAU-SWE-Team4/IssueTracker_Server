@@ -1,5 +1,6 @@
 package com.example.issuetracker_server.controller;
 
+import com.example.issuetracker_server.domain.issue.IssueRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.dto.issue.IssueAssignRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,6 +27,7 @@ public class IssueController {
     private final MemberService memberService;
 
     private final MemberProjectService memberProjectService;
+    private final IssueRepository issueRepository;
 
     @PostMapping
     public ResponseEntity<Void> createIssue(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw,
@@ -79,8 +82,8 @@ public class IssueController {
     }
 
     @GetMapping("/{issueId}/recommend")
-    public ResponseEntity<List<String>> getRecommendAssignee(@PathVariable Long projectId, @PathVariable Long issueId,
-                                                             @RequestParam String id, @RequestParam String pw) {
+    public ResponseEntity<Map<String, List<String>>> getRecommendAssignee(@PathVariable Long projectId, @PathVariable Long issueId,
+                                                                          @RequestParam String id, @RequestParam String pw) {
         if (!memberService.login(id, pw))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
@@ -88,7 +91,7 @@ public class IssueController {
         if (role.isEmpty() || role.get() != Role.PL)
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
-        List<String> response = issueService.getRecommendAssignee(projectId, issueId);
+        Map<String, List<String>> response = issueService.getRecommendAssignee(projectId, issueId);
         return ResponseEntity.ok(response);
     }
 
@@ -102,19 +105,28 @@ public class IssueController {
         if (role.isEmpty() || role.get() != Role.PL)
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
-        boolean result = issueService.assignIssue(projectId, issueId, request.getUserId(), request.getPriority());
+        boolean result = issueService.assignIssue(projectId, issueId, request.getUser_id(), request.getPriority());
         if (result)
             return ResponseEntity.ok().build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-//    @PutMapping("/{issueId}/content")
-//    public ResponseEntity<Void> updateIssueContent(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
-//                                                   @RequestBody IssueRequest request) {
-//        issueService.updateIssueContent(projectId, issueId, id, pw, request);
-//        return ResponseEntity.ok().build();
-//    }
-//
+    @PutMapping("/{issueId}/content")
+    public ResponseEntity<Void> updateIssueContent(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
+                                                   @RequestBody IssueCreateRequestDto request) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty() || role.get() != Role.TESTER)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        boolean result = issueService.updateIssue(id, projectId, issueId, request.getTitle(), request.getDescription());
+        if (result)
+            return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
 //    @PutMapping("/{issueId}/state")
 //    public ResponseEntity<Void> updateIssueState(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
 //                                                 @RequestBody StateRequest request) {

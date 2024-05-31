@@ -672,4 +672,101 @@ public class IssueControllerTest {
                 // Then
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void updateIssueContent_Success() throws Exception {
+        // Given
+        String memberId = "member123";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String password = "password";
+        IssueCreateRequestDto requestDto = new IssueCreateRequestDto("New Title", "New Description");
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.of(Role.TESTER));
+        when(issueService.updateIssue(memberId, projectId, issueId, requestDto.getTitle(), requestDto.getDescription())).thenReturn(true);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/content")
+                        .param("projectId", projectId.toString())
+                        .param("id", memberId)
+                        .param("pw", password)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"New Title\",\"description\":\"New Description\"}"))
+
+                // Then
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void updateIssueContent_Unauthorized() throws Exception {
+        // Given
+        String memberId = "member123";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String password = "wrongPassword";
+        IssueCreateRequestDto requestDto = new IssueCreateRequestDto("New Title", "New Description");
+
+        when(memberService.login(memberId, password)).thenReturn(false);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/content")
+                        .param("projectId", projectId.toString())
+                        .param("id", memberId)
+                        .param("pw", password)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"New Title\",\"description\":\"New Description\"}"))
+
+                // Then
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void updateIssueContent_Forbidden() throws Exception {
+        // Given
+        String memberId = "member123";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String password = "password";
+        IssueCreateRequestDto requestDto = new IssueCreateRequestDto("New Title", "New Description");
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.empty());
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/content")
+                        .param("projectId", projectId.toString())
+                        .param("id", memberId)
+                        .param("pw", password)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"New Title\",\"description\":\"New Description\"}"))
+
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void updateIssueContent_BadRequest() throws Exception {
+        // Given
+        String memberId = "member123";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String password = "password";
+        IssueCreateRequestDto requestDto = new IssueCreateRequestDto("New Title", "New Description");
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.of(Role.TESTER));
+        when(issueService.updateIssue(memberId, projectId, issueId, requestDto.getTitle(), requestDto.getDescription())).thenReturn(false);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/content")
+                        .param("projectId", projectId.toString())
+                        .param("id", memberId)
+                        .param("pw", password)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"New Title\",\"description\":\"New Description\"}"))
+
+                // Then
+                .andExpect(status().isBadRequest());
+    }
 }
