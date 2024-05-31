@@ -3,6 +3,7 @@ package com.example.issuetracker_server.service.issue;
 import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.issue.IssueRepository;
 import com.example.issuetracker_server.domain.issue.Priority;
+import com.example.issuetracker_server.domain.issue.State;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
@@ -15,9 +16,7 @@ import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,16 +80,16 @@ public class IssueServiceImpl implements IssueService {
     private IssueResponseDto toDto(Issue issue) {
         return IssueResponseDto.builder()
                 .id(issue.getId())
-                .projectId(issue.getProject().getId())
+                .project_id(issue.getProject().getId())
                 .title(issue.getTitle())
                 .description(issue.getDescription())
-                .reporterId(issue.getReporter().getId())
-                .assigneeId(issue.getAssignee() != null ? issue.getAssignee().getId() : null)
-                .fixerId(issue.getFixer() != null ? issue.getFixer().getId() : null)
+                .reporter_id(issue.getReporter().getId())
+                .assignee_id(issue.getAssignee() != null ? issue.getAssignee().getId() : null)
+                .fixer_id(issue.getFixer() != null ? issue.getFixer().getId() : null)
                 .priority(issue.getPriority())
                 .state(issue.getState())
-                .createdDate(issue.getCreatedDate().toString())
-                .modifiedDate(issue.getModifiedDate().toString())
+                .created_date(issue.getCreatedDate().toString())
+                .modified_date(issue.getModifiedDate().toString())
                 .build();
     }
 
@@ -101,7 +100,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public List<String> getRecommendAssignee(Long projectId, Long issueId) {
+    public Map<String, List<String>> getRecommendAssignee(Long projectId, Long issueId) {
         List<Member> devs = memberProjectRepository.findByProjectIdAndRole(projectId, Role.DEV).stream()
                 .map(MemberProject::getMember).toList();
         Map<Member, Long> assigneeCount = devs.stream()
@@ -123,11 +122,12 @@ public class IssueServiceImpl implements IssueService {
                         .thenComparing(entry -> entry.getKey().getId()))
                 .toList();
 
-        // 이슈 수가 가장 적은 5명의 String id 추출
-        return sortedAssigneeList.stream()
+        Map<String, List<String>> response = new HashMap<>();
+        response.put("dev_ids", sortedAssigneeList.stream()
                 .limit(5)
-                .map(entry -> entry.getKey().getId()) // Assignee의 id를 String으로 변환
-                .collect(Collectors.toList());
+                .map(entry -> entry.getKey().getId())
+                .collect(Collectors.toList()));
+        return response;
     }
 
     @Override
@@ -138,11 +138,25 @@ public class IssueServiceImpl implements IssueService {
         Member assignee = memberProject.get().getMember();
 
         Optional<Issue> issue = issueRepository.findById(issueId);
-        if (issue.isEmpty())
+        if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId))
             return false;
 
         issue.get().setAssignee(assignee);
         issue.get().setPriority(priority);
+        issue.get().setState(State.ASSIGNED);
+        issueRepository.save(issue.get());
+        return true;
+    }
+
+    @Override
+    public boolean updateIssue(String id, Long projectId, Long issueId, String title, String description) {
+        Optional<Issue> issue = issueRepository.findById(issueId);
+        if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId)
+                || !issue.get().getReporter().getId().equals(id))
+            return false;
+
+        issue.get().setTitle(title);
+        issue.get().setDescription(description);
         issueRepository.save(issue.get());
         return true;
     }

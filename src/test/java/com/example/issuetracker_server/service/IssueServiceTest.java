@@ -6,6 +6,7 @@ import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.MemberProjectRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
+import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.service.issue.IssueServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,10 +16,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class IssueServiceTest {
 
@@ -190,5 +191,110 @@ public class IssueServiceTest {
         // Then
         assertEquals(5, recommendedAssignees.size());
         assertTrue(recommendedAssignees.containsAll(Arrays.asList("user1", "user2", "user3", "user4", "user5")));
+    }
+
+    @Test
+    void updateIssue_Success() {
+        // Given
+        String memberId = "member123";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String title = "New Title";
+        String description = "New Description";
+
+        Issue mockIssue = new Issue();
+        Project mockProject = new Project();
+        mockProject.setId(projectId);
+        Member mockMember = new Member();
+        mockMember.setId(memberId);
+
+        mockIssue.setProject(mockProject);
+        mockIssue.setReporter(mockMember);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.updateIssue(memberId, projectId, issueId, title, description);
+
+        // Then
+        assertTrue(result);
+        assertEquals(title, mockIssue.getTitle());
+        assertEquals(description, mockIssue.getDescription());
+        verify(issueRepository, times(1)).save(mockIssue);
+    }
+
+    @Test
+    void updateIssue_IssueNotFound() {
+        // Given
+        String memberId = "member123";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String title = "New Title";
+        String description = "New Description";
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.empty());
+
+        // When
+        boolean result = issueService.updateIssue(memberId, projectId, issueId, title, description);
+
+        // Then
+        assertFalse(result);
+        verify(issueRepository, never()).save(any());
+    }
+
+    @Test
+    void updateIssue_ProjectMismatch() {
+        // Given
+        String memberId = "member123";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String title = "New Title";
+        String description = "New Description";
+
+        Issue mockIssue = new Issue();
+        Project mockProject = new Project();
+        mockProject.setId(2L);  // Different project ID
+        Member mockMember = new Member();
+        mockMember.setId(memberId);
+
+        mockIssue.setProject(mockProject);
+        mockIssue.setReporter(mockMember);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.updateIssue(memberId, projectId, issueId, title, description);
+
+        // Then
+        assertFalse(result);
+        verify(issueRepository, never()).save(any());
+    }
+
+    @Test
+    void updateIssue_ReporterMismatch() {
+        // Given
+        String memberId = "member123";
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String title = "New Title";
+        String description = "New Description";
+
+        Issue mockIssue = new Issue();
+        Project mockProject = new Project();
+        mockProject.setId(projectId);
+        Member mockMember = new Member();
+        mockMember.setId("differentMember");  // Different reporter ID
+
+        mockIssue.setProject(mockProject);
+        mockIssue.setReporter(mockMember);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.updateIssue(memberId, projectId, issueId, title, description);
+
+        // Then
+        assertFalse(result);
+        verify(issueRepository, never()).save(any());
     }
 }
