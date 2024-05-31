@@ -57,25 +57,25 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public List<IssueResponseDto> getIssues(Long projectId, String sort, String order) {
+    public List<IssueResponseDto> getIssues(Long projectId, String filterBy, String filterValue) {
         List<Issue> issues;
-        if ("state".equalsIgnoreCase(sort)) {
-            if ("asc".equalsIgnoreCase(order))
-                issues = issueRepository.findByProjectIdOrderByStateAsc(projectId);
-            else
-                issues = issueRepository.findByProjectIdOrderByStateDesc(projectId);
-        } else if ("title".equalsIgnoreCase(sort)) {
-            if ("asc".equalsIgnoreCase(order))
-                issues = issueRepository.findByProjectIdOrderByTitleAsc(projectId);
-            else
-                issues = issueRepository.findByProjectIdOrderByTitleDesc(projectId);
-        } else if ("reportedDate".equalsIgnoreCase(sort)) {
-            if ("asc".equalsIgnoreCase(order))
-                issues = issueRepository.findByProjectIdOrderByCreatedDateAsc(projectId);
-            else
-                issues = issueRepository.findByProjectIdOrderByCreatedDateDesc(projectId);
-        } else
-            issues = issueRepository.findByProjectIdOrderByTitleAsc(projectId); // Default sorting
+
+        switch (filterBy.toLowerCase()) {
+            case "title":
+                issues = issueRepository.findByProjectIdAndTitleContainingIgnoreCase(projectId, filterValue);
+                break;
+            case "reporter":
+                issues = issueRepository.findByProjectIdAndReporterContainingIgnoreCase(projectId, filterValue);
+                break;
+            case "assignee":
+                issues = issueRepository.findByProjectIdAndAssigneeContainingIgnoreCase(projectId, filterValue);
+                break;
+            case "state":
+                issues = issueRepository.findByProjectIdAndStateContainingIgnoreCase(projectId, filterValue);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid filter criteria");
+        }
 
         return issues.stream()
                 .map(this::toDto)
@@ -93,8 +93,8 @@ public class IssueServiceImpl implements IssueService {
                 .fixer_id(issue.getFixer() != null ? issue.getFixer().getId() : null)
                 .priority(issue.getPriority())
                 .state(issue.getState())
-                .created_date(issue.getCreatedDate().toString())
-                .modified_date(issue.getModifiedDate().toString())
+                .created_date(issue.getCreatedDate() != null ? issue.getCreatedDate().toString() : null)
+                .modified_date(issue.getModifiedDate() != null ? issue.getModifiedDate().toString() : null)
                 .build();
     }
 
@@ -169,26 +169,37 @@ public class IssueServiceImpl implements IssueService {
     @Override
     public boolean updateIssueState(Long projectId, Long issueId, String id, Role role, State state) {
         Optional<Issue> issue = issueRepository.findById(issueId);
-        if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId)) {
-            System.out.println(issue.get().getProject().getId());
+        if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId))
             return false;
-        }
 
         if (role == Role.PL) {
             issue.get().setState(state);
             issueRepository.save(issue.get());
             return true;
-        } else if (role == Role.DEV && !issue.get().getAssignee().getId().equals(id)
+        } else if (role == Role.DEV && issue.get().getAssignee() != null
+                && !issue.get().getAssignee().getId().equals(id)
                 && issue.get().getState() == State.ASSIGNED && state == State.FIXED) {
             issue.get().setState(State.FIXED);
             issueRepository.save(issue.get());
             return true;
-        } else if (role == Role.TESTER && !issue.get().getReporter().getId().equals(id)
+        } else if (role == Role.TESTER && issue.get().getAssignee() != null
+                && !issue.get().getReporter().getId().equals(id)
                 && issue.get().getState() == State.FIXED && state == State.RESOLVED) {
             issue.get().setState(State.RESOLVED);
             issueRepository.save(issue.get());
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean deleteIssue(Long projectId, Long issueId) {
+        Optional<Issue> issue = issueRepository.findById(issueId);
+        if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId)) {
+            return false;
+        }
+        issueRepository.delete(issue.get());
+
+        return true;
     }
 }

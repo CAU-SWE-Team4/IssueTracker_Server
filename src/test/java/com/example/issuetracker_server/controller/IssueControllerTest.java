@@ -6,6 +6,7 @@ import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.dto.issue.IssueAssignRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
+import com.example.issuetracker_server.dto.issue.IssueStateRequest;
 import com.example.issuetracker_server.service.issue.IssueService;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectService;
@@ -766,6 +767,203 @@ public class IssueControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"New Title\",\"description\":\"New Description\"}"))
 
+                // Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateIssueState_Success() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "password";
+        State newState = State.RESOLVED;
+        IssueStateRequest request = new IssueStateRequest();
+        request.setState(newState);
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.of(Role.PL));
+        when(issueService.updateIssueState(projectId, issueId, memberId, Role.PL, newState)).thenReturn(true);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/state")
+                        .param("id", memberId)
+                        .param("pw", password)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"state\":\"RESOLVED\"}"))
+
+                // Then
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void updateIssueState_Unauthorized() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "wrongPassword";
+        State newState = State.RESOLVED;
+        IssueStateRequest request = new IssueStateRequest();
+        request.setState(newState);
+
+        when(memberService.login(memberId, password)).thenReturn(false);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/state")
+                        .param("id", memberId)
+                        .param("pw", password)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"state\":\"RESOLVED\"}"))
+
+                // Then
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void updateIssueState_Forbidden() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "password";
+        State newState = State.RESOLVED;
+        IssueStateRequest request = new IssueStateRequest();
+        request.setState(newState);
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.empty());
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/state")
+                        .param("id", memberId)
+                        .param("pw", password)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"state\":\"RESOLVED\"}"))
+
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void updateIssueState_BadRequest() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "password";
+        State newState = State.RESOLVED;
+        IssueStateRequest request = new IssueStateRequest();
+        request.setState(newState);
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.of(Role.PL));
+        when(issueService.updateIssueState(projectId, issueId, memberId, Role.PL, newState)).thenReturn(false);
+
+        // When
+        mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/state")
+                        .param("id", memberId)
+                        .param("pw", password)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"state\":\"RESOLVED\"}"))
+
+                // Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteIssue_Success() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "password";
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.of(Role.PL));
+        when(issueService.deleteIssue(projectId, issueId)).thenReturn(true);
+
+        // When
+        mockMvc.perform(delete("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", memberId)
+                        .param("pw", password))
+                // Then
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteIssue_Unauthorized() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "wrongPassword";
+
+        when(memberService.login(memberId, password)).thenReturn(false);
+
+        // When
+        mockMvc.perform(delete("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", memberId)
+                        .param("pw", password))
+                // Then
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deleteIssue_Forbidden_NoRole() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "password";
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.empty());
+
+        // When
+        mockMvc.perform(delete("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", memberId)
+                        .param("pw", password))
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteIssue_Forbidden_NotPL() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "password";
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.of(Role.DEV));
+
+        // When
+        mockMvc.perform(delete("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", memberId)
+                        .param("pw", password))
+                // Then
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteIssue_BadRequest() throws Exception {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        String password = "password";
+
+        when(memberService.login(memberId, password)).thenReturn(true);
+        when(memberProjectService.getRole(memberId, projectId)).thenReturn(Optional.of(Role.PL));
+        when(issueService.deleteIssue(projectId, issueId)).thenReturn(false);
+
+        // When
+        mockMvc.perform(delete("/project/" + projectId + "/issue/" + issueId)
+                        .param("id", memberId)
+                        .param("pw", password))
                 // Then
                 .andExpect(status().isBadRequest());
     }

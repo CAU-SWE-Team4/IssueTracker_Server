@@ -6,16 +6,12 @@ import java.util.List;
 
 public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByProjectId(Long projectId);
-    
-    List<Issue> findByProjectIdOrderByTitleAsc(Long projectId);
 
-    List<Issue> findByProjectIdOrderByTitleDesc(Long projectId);
+    List<Issue> findByProjectIdAndTitleContainingIgnoreCase(Long projectId, String title);
 
-    List<Issue> findByProjectIdOrderByCreatedDateAsc(Long projectId);
+    List<Issue> findByProjectIdAndReporterContainingIgnoreCase(Long projectId, String reporter);
 
-    List<Issue> findByProjectIdOrderByCreatedDateDesc(Long projectId);
+    List<Issue> findByProjectIdAndAssigneeContainingIgnoreCase(Long projectId, String assignee);
 
-    List<Issue> findByProjectIdOrderByStateAsc(Long projectId);
-
-    List<Issue> findByProjectIdOrderByStateDesc(Long projectId);
+    List<Issue> findByProjectIdAndStateContainingIgnoreCase(Long projectId, String state);
 }
