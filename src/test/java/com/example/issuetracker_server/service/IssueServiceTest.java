@@ -71,7 +71,7 @@ public class IssueServiceTest {
         when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
 
         // When
-        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId);
+        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId).get("dev_ids");
 
         // Then
         assertEquals(5, recommendedAssignees.size());
@@ -110,7 +110,7 @@ public class IssueServiceTest {
         when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
 
         // When
-        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId);
+        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId).get("dev_ids");
 
         // Then
         assertEquals(4, recommendedAssignees.size());
@@ -147,7 +147,7 @@ public class IssueServiceTest {
         when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
 
         // When
-        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId);
+        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId).get("dev_ids");
 
         // Then
         assertEquals(5, recommendedAssignees.size());
@@ -185,7 +185,7 @@ public class IssueServiceTest {
         when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
 
         // When
-        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId);
+        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId).get("dev_ids");
 
         // Then
         assertEquals(5, recommendedAssignees.size());

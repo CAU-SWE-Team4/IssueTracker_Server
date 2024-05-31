@@ -22,9 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -317,8 +315,8 @@ public class IssueControllerTest {
                 // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(2)))
-                .andExpect(jsonPath("$[0].createdDate", is("2022-01-01")))
-                .andExpect(jsonPath("$[1].createdDate", is("2022-01-02")));
+                .andExpect(jsonPath("$[0].created_date", is("2022-01-01")))
+                .andExpect(jsonPath("$[1].created_date", is("2022-01-02")));
     }
 
     @Test
@@ -346,8 +344,8 @@ public class IssueControllerTest {
                 // Then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(2)))
-                .andExpect(jsonPath("$[0].createdDate", is("2022-01-02")))
-                .andExpect(jsonPath("$[1].createdDate", is("2022-01-01")));
+                .andExpect(jsonPath("$[0].created_date", is("2022-01-02")))
+                .andExpect(jsonPath("$[1].created_date", is("2022-01-01")));
     }
 
     @Test
@@ -548,7 +546,9 @@ public class IssueControllerTest {
         String pw = "password";
         Long projectId = 1L;
         Long issueId = 1L;
-        List<String> recommendedAssignees = List.of("user1", "user2", "user3");
+        List<String> assignees = List.of("user1", "user2", "user3");
+        Map<String, List<String>> recommendedAssignees = new HashMap<>();
+        recommendedAssignees.put("dev_ids", assignees);
 
         when(memberService.login(id, pw)).thenReturn(true);
         when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
@@ -563,9 +563,9 @@ public class IssueControllerTest {
 
                 // Then
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0]", is("user1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1]", is("user2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2]", is("user3")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dev_ids[0]", is("user1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dev_ids[1]", is("user2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dev_ids[2]", is("user3")));
     }
 
     @Test
@@ -577,7 +577,7 @@ public class IssueControllerTest {
         Long projectId = 1L;
         Long issueId = 1L;
         IssueAssignRequestDto request = new IssueAssignRequestDto();
-        request.setUserId("user1");
+        request.setUser_id("user1");
         request.setPriority(Priority.HIGH);
 
         when(memberService.login(id, pw)).thenReturn(false);
@@ -602,7 +602,7 @@ public class IssueControllerTest {
         Long projectId = 1L;
         Long issueId = 1L;
         IssueAssignRequestDto request = new IssueAssignRequestDto();
-        request.setUserId("user1");
+        request.setUser_id("user1");
         request.setPriority(Priority.HIGH);
 
         when(memberService.login(id, pw)).thenReturn(true);
@@ -628,12 +628,12 @@ public class IssueControllerTest {
         Long projectId = 1L;
         Long issueId = 1L;
         IssueAssignRequestDto request = new IssueAssignRequestDto();
-        request.setUserId("user1");
+        request.setUser_id("user1");
         request.setPriority(Priority.HIGH);
 
         when(memberService.login(id, pw)).thenReturn(true);
         when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
-        when(issueService.assignIssue(projectId, issueId, request.getUserId(), request.getPriority())).thenReturn(false);
+        when(issueService.assignIssue(projectId, issueId, request.getUser_id(), request.getPriority())).thenReturn(false);
 
         // When
         mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/assign")
@@ -655,12 +655,12 @@ public class IssueControllerTest {
         Long projectId = 1L;
         Long issueId = 1L;
         IssueAssignRequestDto request = new IssueAssignRequestDto();
-        request.setUserId("user1");
+        request.setUser_id("user1");
         request.setPriority(Priority.HIGH);
 
         when(memberService.login(id, pw)).thenReturn(true);
         when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
-        when(issueService.assignIssue(projectId, issueId, request.getUserId(), request.getPriority())).thenReturn(true);
+        when(issueService.assignIssue(projectId, issueId, request.getUser_id(), request.getPriority())).thenReturn(true);
 
         // When
         mockMvc.perform(put("/project/" + projectId + "/issue/" + issueId + "/assign")

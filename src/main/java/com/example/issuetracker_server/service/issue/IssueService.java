@@ -6,6 +6,7 @@ import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface IssueService {
@@ -16,7 +17,9 @@ public interface IssueService {
 
     Optional<IssueResponseDto> getIssue(Long projectId, Long issueId);
 
-    List<String> getRecommendAssignee(Long projectId, Long issueId);
+    Map<String, List<String>> getRecommendAssignee(Long projectId, Long issueId);
 
     boolean assignIssue(Long projectId, Long issueId, String memberId, Priority priority);
+
+    boolean updateIssue(String memberId, Long projectId, Long issueId, String title, String description);
 }
