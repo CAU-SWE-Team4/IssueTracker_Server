@@ -71,7 +71,7 @@ public class ProjectControllerTest {
 
     private ProjectRequestDto requestDto;
 
-    String url = "http://localhost:" + port + "/project/";
+    String url = "http://localhost:" + port + "/project";
     @BeforeEach
     public void setUp() {
         String title = "project1";
@@ -180,7 +180,7 @@ public class ProjectControllerTest {
         ProjectDto updateRequestDto = new ProjectDto();
         updateRequestDto.setTitle("Updated Project Title");
 
-        mvc.perform(put(url + "1")
+        mvc.perform(put(url + "/1")
                         .param("id", "admin")
                         .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -197,7 +197,7 @@ public class ProjectControllerTest {
         ProjectDto updateRequestDto = new ProjectDto();
         updateRequestDto.setTitle("Updated Project Title");
 
-        mvc.perform(put(url + "1")
+        mvc.perform(put(url + "/1")
                         .param("id", "user")
                         .param("pw", "wrongPassword")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -215,7 +215,7 @@ public class ProjectControllerTest {
         ProjectDto updateRequestDto = new ProjectDto();
         updateRequestDto.setTitle("Updated Project Title");
 
-        mvc.perform(put(url + "1")
+        mvc.perform(put(url + "/1")
                         .param("id", "admin")
                         .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -237,7 +237,7 @@ public class ProjectControllerTest {
                         new ProjectRequestDto.Member("user2", Role.TESTER)
                 ));
 
-        mvc.perform(put(url + "1")
+        mvc.perform(put(url + "/1")
                         .param("id", "admin")
                         .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -253,7 +253,7 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(memberProjectService.getRole(anyString(), anyLong())).thenReturn(Optional.of(Role.TESTER));
 
-        mvc.perform(delete(url + "1")
+        mvc.perform(delete(url + "/1")
                 .param("id", "user")
                 .param("pw", "wrongpassword"))
                 .andExpect(status().isUnauthorized());
@@ -264,7 +264,7 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
 
-        mvc.perform(delete(url + "1")
+        mvc.perform(delete(url + "/1")
                 .param("id", "admin")
                 .param("pw", "password"))
                 .andExpect(status().isNotFound());
@@ -277,7 +277,7 @@ public class ProjectControllerTest {
         doNothing().when(memberProjectService).deleteAll(anyList());
         doNothing().when(projectsService).delete(anyLong());
 
-        mvc.perform(delete(url + "1")
+        mvc.perform(delete(url + "/1")
                         .param("id", "admin")
                         .param("pw", "password"))
                 .andExpect(status().isOk());
@@ -289,7 +289,7 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
 
-        mvc.perform(get(url + "1/userRole")
+        mvc.perform(get(url + "/1/userRole")
                 .param("id", "user")
                 .param("pw", "password"))
                 .andExpect(status().isNotFound());
@@ -308,7 +308,7 @@ public class ProjectControllerTest {
                 new MemberProject(new Member("user2", "user2", "user2", "user1"), project1, Role.TESTER)
         ));
 
-        mvc.perform(get(url + "1/userRole")
+        mvc.perform(get(url + "/1/userRole")
                         .param("id", "admin")
                         .param("pw", "password"))
                 .andExpect(status().isOk())
