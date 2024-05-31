@@ -144,9 +144,18 @@ public class IssueController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-//    @DeleteMapping("/{issueId}")
-//    public ResponseEntity<Void> deleteIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw) {
-//        issueService.deleteIssue(projectId, issueId, id, pw);
-//        return ResponseEntity.ok().build();
-//    }
+    @DeleteMapping("/{issueId}")
+    public ResponseEntity<Void> deleteIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty() || role.get() != Role.PL)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        boolean result = issueService.deleteIssue(projectId, issueId);
+        if (result)
+            return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 }
