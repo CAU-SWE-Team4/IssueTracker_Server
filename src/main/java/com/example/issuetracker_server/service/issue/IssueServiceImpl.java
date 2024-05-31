@@ -169,26 +169,37 @@ public class IssueServiceImpl implements IssueService {
     @Override
     public boolean updateIssueState(Long projectId, Long issueId, String id, Role role, State state) {
         Optional<Issue> issue = issueRepository.findById(issueId);
-        if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId)) {
-            System.out.println(issue.get().getProject().getId());
+        if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId))
             return false;
-        }
 
         if (role == Role.PL) {
             issue.get().setState(state);
             issueRepository.save(issue.get());
             return true;
-        } else if (role == Role.DEV && !issue.get().getAssignee().getId().equals(id)
+        } else if (role == Role.DEV && issue.get().getAssignee() != null
+                && !issue.get().getAssignee().getId().equals(id)
                 && issue.get().getState() == State.ASSIGNED && state == State.FIXED) {
             issue.get().setState(State.FIXED);
             issueRepository.save(issue.get());
             return true;
-        } else if (role == Role.TESTER && !issue.get().getReporter().getId().equals(id)
+        } else if (role == Role.TESTER && issue.get().getAssignee() != null
+                && !issue.get().getReporter().getId().equals(id)
                 && issue.get().getState() == State.FIXED && state == State.RESOLVED) {
             issue.get().setState(State.RESOLVED);
             issueRepository.save(issue.get());
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean deleteIssue(Long projectId, Long issueId) {
+        Optional<Issue> issue = issueRepository.findById(issueId);
+        if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId)) {
+            return false;
+        }
+        issueRepository.delete(issue.get());
+        
+        return true;
     }
 }
