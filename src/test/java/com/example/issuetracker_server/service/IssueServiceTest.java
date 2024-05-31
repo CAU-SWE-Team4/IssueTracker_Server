@@ -2,12 +2,14 @@ package com.example.issuetracker_server.service;
 
 import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.issue.IssueRepository;
+import com.example.issuetracker_server.domain.issue.Priority;
 import com.example.issuetracker_server.domain.issue.State;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.MemberProjectRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
+import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 import com.example.issuetracker_server.service.issue.IssueServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,186 @@ public class IssueServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetIssuesByTitle() {
+        Long projectId = 1L;
+        String filterBy = "title";
+        String filterValue = "bug";
+
+        Project project = new Project();
+        Member reporter = new Member();
+
+        Issue issue1 = Issue.builder()
+                .id(1L)
+                .project(project)
+                .title("bug fix")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.HIGH)
+                .state(State.NEW)
+                .build();
+
+        Issue issue2 = Issue.builder()
+                .id(2L)
+                .project(project)
+                .title("bug report")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.MEDIUM)
+                .state(State.NEW)
+                .build();
+
+        when(issueRepository.findByProjectIdAndTitleContainingIgnoreCase(projectId, filterValue))
+                .thenReturn(Arrays.asList(issue1, issue2));
+
+        List<IssueResponseDto> result = issueService.getIssues(projectId, filterBy, filterValue);
+
+        assertEquals(2, result.size());
+        verify(issueRepository, times(1)).findByProjectIdAndTitleContainingIgnoreCase(projectId, filterValue);
+    }
+
+    @Test
+    void testGetIssuesByReporter() {
+        Long projectId = 1L;
+        String filterBy = "reporter";
+        String filterValue = "john";
+
+        Project project = new Project();
+        Member reporter = new Member();
+
+        Issue issue1 = Issue.builder()
+                .id(1L)
+                .project(project)
+                .title("issue 1")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.LOW)
+                .state(State.NEW)
+                .build();
+
+        Issue issue2 = Issue.builder()
+                .id(2L)
+                .project(project)
+                .title("issue 2")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.MEDIUM)
+                .state(State.NEW)
+                .build();
+
+        when(issueRepository.findByProjectIdAndReporterContainingIgnoreCase(projectId, filterValue))
+                .thenReturn(Arrays.asList(issue1, issue2));
+
+        List<IssueResponseDto> result = issueService.getIssues(projectId, filterBy, filterValue);
+
+        assertEquals(2, result.size());
+        verify(issueRepository, times(1)).findByProjectIdAndReporterContainingIgnoreCase(projectId, filterValue);
+    }
+
+    @Test
+    void testGetIssuesByAssignee() {
+        Long projectId = 1L;
+        String filterBy = "assignee";
+        String filterValue = "jane";
+
+        Project project = new Project();
+        Member assignee = new Member();
+
+        Issue issue1 = Issue.builder()
+                .id(1L)
+                .project(project)
+                .title("issue 1")
+                .description("description")
+                .reporter(new Member())
+                .assignee(assignee)
+                .fixer(null)
+                .priority(Priority.LOW)
+                .state(State.NEW)
+                .build();
+
+        Issue issue2 = Issue.builder()
+                .id(2L)
+                .project(project)
+                .title("issue 2")
+                .description("description")
+                .reporter(new Member())
+                .assignee(assignee)
+                .fixer(null)
+                .priority(Priority.MEDIUM)
+                .state(State.NEW)
+                .build();
+
+        when(issueRepository.findByProjectIdAndAssigneeContainingIgnoreCase(projectId, filterValue))
+                .thenReturn(Arrays.asList(issue1, issue2));
+
+        List<IssueResponseDto> result = issueService.getIssues(projectId, filterBy, filterValue);
+
+        assertEquals(2, result.size());
+        verify(issueRepository, times(1)).findByProjectIdAndAssigneeContainingIgnoreCase(projectId, filterValue);
+    }
+
+    @Test
+    void testGetIssuesByState() {
+        Long projectId = 1L;
+        String filterBy = "state";
+        String filterValue = "NEW";
+
+        Project project = new Project();
+        Member reporter = new Member();
+
+        Issue issue1 = Issue.builder()
+                .id(1L)
+                .project(project)
+                .title("issue 1")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.LOW)
+                .state(State.NEW)
+                .build();
+
+        Issue issue2 = Issue.builder()
+                .id(2L)
+                .project(project)
+                .title("issue 2")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.MEDIUM)
+                .state(State.NEW)
+                .build();
+
+        Issue issue3 = Issue.builder()
+                .id(3L)
+                .project(project)
+                .title("issue 3")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.MEDIUM)
+                .state(State.ASSIGNED)
+                .build();
+
+        when(issueRepository.findByProjectIdAndStateContainingIgnoreCase(projectId, filterValue))
+                .thenReturn(Arrays.asList(issue1, issue2));
+
+        List<IssueResponseDto> result = issueService.getIssues(projectId, filterBy, filterValue);
+
+        assertEquals(2, result.size());
+        verify(issueRepository, times(1)).findByProjectIdAndStateContainingIgnoreCase(projectId, filterValue);
     }
 
     @Test

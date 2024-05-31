@@ -16,7 +16,7 @@ public interface IssueService {
 
     boolean createIssue(Long projectId, String memberId, IssueCreateRequestDto request);
 
-    List<IssueResponseDto> getIssues(Long projectId, String sort, String order);
+    List<IssueResponseDto> getIssues(Long projectId, String filterBy, String filterValue);
 
     Optional<IssueResponseDto> getIssue(Long projectId, Long issueId);
 
