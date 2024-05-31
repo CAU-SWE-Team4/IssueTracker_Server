@@ -60,23 +60,27 @@ public class IssueServiceImpl implements IssueService {
     public List<IssueResponseDto> getIssues(Long projectId, String filterBy, String filterValue) {
         List<Issue> issues;
 
-        switch (filterBy.toLowerCase()) {
-            case "title":
-                issues = issueRepository.findByProjectIdAndTitleContainingIgnoreCase(projectId, filterValue);
-                break;
-            case "reporter":
-                issues = issueRepository.findByProjectIdAndReporterIdContainingIgnoreCase(projectId, filterValue);
-                break;
-            case "assignee":
-                issues = issueRepository.findByProjectIdAndAssigneeIdContainingIgnoreCase(projectId, filterValue);
-                break;
-            case "state":
-                issues = issueRepository.findByProjectIdAndState(projectId, State.valueOf(filterValue));
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid filter criteria");
+        if ((filterBy == null || filterBy.isEmpty()) || (filterValue == null || filterValue.isEmpty()))
+            issues = issueRepository.findAll();
+        else
+        {
+            switch (Objects.requireNonNull(filterBy).toLowerCase()) {
+                case "title":
+                    issues = issueRepository.findByProjectIdAndTitleContainingIgnoreCase(projectId, filterValue);
+                    break;
+                case "reporter":
+                    issues = issueRepository.findByProjectIdAndReporterIdContainingIgnoreCase(projectId, filterValue);
+                    break;
+                case "assignee":
+                    issues = issueRepository.findByProjectIdAndAssigneeIdContainingIgnoreCase(projectId, filterValue);
+                    break;
+                case "state":
+                    issues = issueRepository.findByProjectIdAndState(projectId, State.valueOf(filterValue));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid filter criteria");
+            }
         }
-
         return issues.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

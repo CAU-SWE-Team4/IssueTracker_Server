@@ -221,6 +221,72 @@ public class IssueServiceTest {
     }
 
     @Test
+    void testGetIssuesWithNullOrEmptyFilters() {
+        Long projectId = 1L;
+
+        Project project = new Project();
+        Member reporter = new Member();
+
+        Issue issue1 = Issue.builder()
+                .id(1L)
+                .project(project)
+                .title("issue 1")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.LOW)
+                .state(State.NEW)
+                .build();
+
+        Issue issue2 = Issue.builder()
+                .id(2L)
+                .project(project)
+                .title("issue 2")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.MEDIUM)
+                .state(State.ASSIGNED)
+                .build();
+
+        Issue issue3 = Issue.builder()
+                .id(3L)
+                .project(project)
+                .title("issue 3")
+                .description("description")
+                .reporter(reporter)
+                .assignee(null)
+                .fixer(null)
+                .priority(Priority.HIGH)
+                .state(State.CLOSED)
+                .build();
+
+        when(issueRepository.findAll()).thenReturn(Arrays.asList(issue1, issue2, issue3));
+
+        // Test with filterBy and filterValue both null
+        List<IssueResponseDto> result = issueService.getIssues(projectId, null, null);
+        assertEquals(3, result.size());
+        verify(issueRepository, times(1)).findAll();
+
+        // Test with filterBy null and filterValue empty
+        result = issueService.getIssues(projectId, null, "");
+        assertEquals(3, result.size());
+        verify(issueRepository, times(2)).findAll();
+
+        // Test with filterBy empty and filterValue null
+        result = issueService.getIssues(projectId, "", null);
+        assertEquals(3, result.size());
+        verify(issueRepository, times(3)).findAll();
+
+        // Test with both filterBy and filterValue empty
+        result = issueService.getIssues(projectId, "", "");
+        assertEquals(3, result.size());
+        verify(issueRepository, times(4)).findAll();
+    }
+
+    @Test
     public void testGetRecommendAssignee() {
         // Given
         Long projectId = 1L;
