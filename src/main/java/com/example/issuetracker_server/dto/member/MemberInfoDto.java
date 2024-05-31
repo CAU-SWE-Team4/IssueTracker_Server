@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 public class MemberInfoDto {
 
     @NotEmpty
-    private String userId;
+    private String user_id;
 
     @NotEmpty
     private String name;
 
     @NotEmpty
-    private String mail;
+    private String email;
 
 }

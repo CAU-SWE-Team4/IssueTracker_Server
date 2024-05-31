@@ -6,6 +6,7 @@ import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
+import com.example.issuetracker_server.dto.project.ProjectDto;
 import com.example.issuetracker_server.dto.project.ProjectRequestDto;
 import com.example.issuetracker_server.service.member.MemberServiceImpl;
 import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -69,7 +71,7 @@ public class ProjectControllerTest {
 
     private ProjectRequestDto requestDto;
 
-    String url = "http://localhost:" + port + "/project/";
+    String url = "http://localhost:" + port + "/project";
     @BeforeEach
     public void setUp() {
         String title = "project1";
@@ -79,27 +81,22 @@ public class ProjectControllerTest {
         members.add(new ProjectRequestDto.Member("user2", Role.DEV));
         members.add(new ProjectRequestDto.Member("user3", Role.TESTER));
 
-        requestDto = ProjectRequestDto.builder()
-                .title(title)
-                .members(members)
-                .build();
-
+        requestDto = new ProjectRequestDto();
+        requestDto.setMembers(members);
+        requestDto.setTitle(title);
         MockitoAnnotations.openMocks(this);
+
+
 
     }
 
     @Test
     public void saveProject_Success() throws Exception {
         // given
-
-        Member adminMember = new Member();
-        adminMember.setId("admin");
-        adminMember.setPassword("password");
-        adminMember.setName("admin");
-        adminMember.setMail("aaa@aaa.com");
-
-        when(memberRepository.findById("admin")).thenReturn(Optional.of(adminMember));
+        when(memberService.login(anyString(),anyString())).thenReturn(true);
         when(projectsService.saveDto(any(ProjectRequestDto.class))).thenReturn(1L);
+
+
 
         //when
         mvc.perform(post(url)
@@ -130,7 +127,7 @@ public class ProjectControllerTest {
                         .param("id", "user")
                         .param("pw", "pw")
                         .contentType(MediaType.APPLICATION_JSON_UTF8).content(new ObjectMapper().writeValueAsString(requestDto)))
-                .andExpect(status().is(400));
+                .andExpect(status().isUnauthorized());
 
         //then
 
@@ -180,11 +177,10 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(projectsService.findById(anyLong())).thenReturn(Optional.of(new Project()));
 
-        ProjectRequestDto updateRequestDto = ProjectRequestDto.builder()
-                .title("Updated Project Title")
-                .build();
+        ProjectDto updateRequestDto = new ProjectDto();
+        updateRequestDto.setTitle("Updated Project Title");
 
-        mvc.perform(put(url + "1")
+        mvc.perform(put(url + "/1")
                         .param("id", "admin")
                         .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -198,11 +194,10 @@ public class ProjectControllerTest {
     public void updateProject_Unauthorized() throws Exception {
         when(memberService.login(anyString(), anyString())).thenReturn(false);
 
-        ProjectRequestDto updateRequestDto = ProjectRequestDto.builder()
-                .title("Updated Project Title")
-                .build();
+        ProjectDto updateRequestDto = new ProjectDto();
+        updateRequestDto.setTitle("Updated Project Title");
 
-        mvc.perform(put(url + "1")
+        mvc.perform(put(url + "/1")
                         .param("id", "user")
                         .param("pw", "wrongPassword")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -217,11 +212,10 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
 
-        ProjectRequestDto updateRequestDto = ProjectRequestDto.builder()
-                .title("Updated Project Title")
-                .build();
+        ProjectDto updateRequestDto = new ProjectDto();
+        updateRequestDto.setTitle("Updated Project Title");
 
-        mvc.perform(put(url + "1")
+        mvc.perform(put(url + "/1")
                         .param("id", "admin")
                         .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -237,14 +231,13 @@ public class ProjectControllerTest {
         when(projectsService.findById(anyLong())).thenReturn(Optional.of(new Project()));
         when(memberProjectService.getMemberProjectByProjectId(anyLong())).thenReturn(new ArrayList<>());
 
-        ProjectRequestDto updateRequestDto = ProjectRequestDto.builder()
-                .members(Arrays.asList(
+        ProjectRequestDto updateRequestDto = new ProjectRequestDto();
+        updateRequestDto.setMembers(Arrays.asList(
                         new ProjectRequestDto.Member("user1", Role.DEV),
                         new ProjectRequestDto.Member("user2", Role.TESTER)
-                ))
-                .build();
+                ));
 
-        mvc.perform(put(url + "1")
+        mvc.perform(put(url + "/1")
                         .param("id", "admin")
                         .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -260,7 +253,7 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(memberProjectService.getRole(anyString(), anyLong())).thenReturn(Optional.of(Role.TESTER));
 
-        mvc.perform(delete(url + "1")
+        mvc.perform(delete(url + "/1")
                 .param("id", "user")
                 .param("pw", "wrongpassword"))
                 .andExpect(status().isUnauthorized());
@@ -271,7 +264,7 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
 
-        mvc.perform(delete(url + "1")
+        mvc.perform(delete(url + "/1")
                 .param("id", "admin")
                 .param("pw", "password"))
                 .andExpect(status().isNotFound());
@@ -284,7 +277,7 @@ public class ProjectControllerTest {
         doNothing().when(memberProjectService).deleteAll(anyList());
         doNothing().when(projectsService).delete(anyLong());
 
-        mvc.perform(delete(url + "1")
+        mvc.perform(delete(url + "/1")
                         .param("id", "admin")
                         .param("pw", "password"))
                 .andExpect(status().isOk());
@@ -296,7 +289,7 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
 
-        mvc.perform(get(url + "1/userRole")
+        mvc.perform(get(url + "/1/userRole")
                 .param("id", "user")
                 .param("pw", "password"))
                 .andExpect(status().isNotFound());
@@ -315,7 +308,7 @@ public class ProjectControllerTest {
                 new MemberProject(new Member("user2", "user2", "user2", "user1"), project1, Role.TESTER)
         ));
 
-        mvc.perform(get(url + "1/userRole")
+        mvc.perform(get(url + "/1/userRole")
                         .param("id", "admin")
                         .param("pw", "password"))
                 .andExpect(status().isOk())

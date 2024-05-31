@@ -30,10 +30,10 @@ public class MemberControllerTest {
     public void testLoginSuccess() {
         // Given
         MemberLoginRequestDto loginDto = new MemberLoginRequestDto();
-        loginDto.setUserId("testUser");
+        loginDto.setUser_id("testUser");
         loginDto.setPassword("testPass");
 
-        when(memberService.login(loginDto.getUserId(), loginDto.getPassword())).thenReturn(true);
+        when(memberService.login(loginDto.getUser_id(), loginDto.getPassword())).thenReturn(true);
 
         // When
         ResponseEntity<Void> response = memberController.login(loginDto);
@@ -46,10 +46,10 @@ public class MemberControllerTest {
     public void testLoginFailure() {
         // Given
         MemberLoginRequestDto loginDto = new MemberLoginRequestDto();
-        loginDto.setUserId("testUser");
+        loginDto.setUser_id("testUser");
         loginDto.setPassword("wrongPass");
 
-        when(memberService.login(loginDto.getUserId(), loginDto.getPassword())).thenReturn(false);
+        when(memberService.login(loginDto.getUser_id(), loginDto.getPassword())).thenReturn(false);
 
         // When
         ResponseEntity<Void> response = memberController.login(loginDto);
@@ -62,10 +62,10 @@ public class MemberControllerTest {
     public void testSignUpSuccess() {
         // Given
         MemberSignUpRequestDto signUpDto = new MemberSignUpRequestDto();
-        signUpDto.setUserId("newUser");
+        signUpDto.setUser_id("newUser");
         signUpDto.setPassword("newPass");
         signUpDto.setName("New User");
-        signUpDto.setMail("newuser@example.com");
+        signUpDto.setEmail("newuser@example.com");
 
         when(memberService.signUp(signUpDto)).thenReturn(true);
 
@@ -80,10 +80,10 @@ public class MemberControllerTest {
     public void testSignUpFailure() {
         // Given
         MemberSignUpRequestDto signUpDto = new MemberSignUpRequestDto();
-        signUpDto.setUserId("newUser");
+        signUpDto.setUser_id("newUser");
         signUpDto.setPassword("newPass");
         signUpDto.setName("New User");
-        signUpDto.setMail("newuser@example.com");
+        signUpDto.setEmail("newuser@example.com");
 
         when(memberService.signUp(signUpDto)).thenReturn(false);
 
