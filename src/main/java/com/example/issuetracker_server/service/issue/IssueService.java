@@ -2,6 +2,8 @@ package com.example.issuetracker_server.service.issue;
 
 
 import com.example.issuetracker_server.domain.issue.Priority;
+import com.example.issuetracker_server.domain.issue.State;
+import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 
@@ -22,4 +24,6 @@ public interface IssueService {
     boolean assignIssue(Long projectId, Long issueId, String memberId, Priority priority);
 
     boolean updateIssue(String memberId, Long projectId, Long issueId, String title, String description);
+
+    boolean updateIssueState(Long projectId, Long issueId, String id, Role role, State state);
 }

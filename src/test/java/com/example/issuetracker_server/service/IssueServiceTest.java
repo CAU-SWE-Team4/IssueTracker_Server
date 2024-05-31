@@ -2,6 +2,7 @@ package com.example.issuetracker_server.service;
 
 import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.issue.IssueRepository;
+import com.example.issuetracker_server.domain.issue.State;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.MemberProjectRepository;
@@ -297,4 +298,143 @@ public class IssueServiceTest {
         assertFalse(result);
         verify(issueRepository, never()).save(any());
     }
+
+    @Test
+    void updateIssueState_SuccessForPL() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "pl123";
+        Role role = Role.PL;
+        State newState = State.RESOLVED;
+
+        Issue mockIssue = new Issue();
+        mockIssue.setId(issueId);
+        Project mockProject = new Project();
+        mockProject.setId(projectId);
+        mockIssue.setProject(mockProject);
+        mockIssue.setState(State.NEW);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.updateIssueState(projectId, issueId, memberId, role, newState);
+
+        // Then
+        assertTrue(result);
+        assertEquals(newState, mockIssue.getState());
+        verify(issueRepository, times(1)).save(mockIssue);
+    }
+
+    @Test
+    void updateIssueState_FailureForInvalidProject() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        Role role = Role.PL;
+        State newState = State.RESOLVED;
+
+        Issue mockIssue = new Issue();
+        Project mockProject = new Project();
+        mockProject.setId(2L); // Different project ID
+        mockIssue.setProject(mockProject);
+        mockIssue.setState(State.NEW);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.updateIssueState(projectId, issueId, memberId, role, newState);
+
+        // Then
+        assertFalse(result);
+        verify(issueRepository, times(0)).save(mockIssue);
+    }
+
+    @Test
+    void updateIssueState_SuccessForDev() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "dev123";
+        Role role = Role.DEV;
+        State newState = State.FIXED;
+
+        Issue mockIssue = new Issue();
+        mockIssue.setId(issueId);
+        Project mockProject = new Project();
+        mockProject.setId(projectId);
+        Member mockAssignee = new Member();
+        mockAssignee.setId("differentDev123");
+        mockIssue.setAssignee(mockAssignee);
+        mockIssue.setProject(mockProject);
+        mockIssue.setState(State.ASSIGNED);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.updateIssueState(projectId, issueId, memberId, role, newState);
+
+        // Then
+        assertTrue(result);
+        assertEquals(State.FIXED, mockIssue.getState());
+        verify(issueRepository, times(1)).save(mockIssue);
+    }
+
+    @Test
+    void updateIssueState_SuccessForTester() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "tester123";
+        Role role = Role.TESTER;
+        State newState = State.RESOLVED;
+
+        Issue mockIssue = new Issue();
+        Project mockProject = new Project();
+        mockProject.setId(projectId);
+        Member mockReporter = new Member();
+        mockReporter.setId("differentTester123");
+        mockIssue.setReporter(mockReporter);
+        mockIssue.setProject(mockProject);
+        mockIssue.setState(State.FIXED);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.updateIssueState(projectId, issueId, memberId, role, newState);
+
+        // Then
+        assertTrue(result);
+        assertEquals(State.RESOLVED, mockIssue.getState());
+        verify(issueRepository, times(1)).save(mockIssue);
+    }
+
+    @Test
+    void updateIssueState_FailureForInvalidRole() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+        String memberId = "member123";
+        Role role = Role.DEV;
+        State newState = State.RESOLVED;
+
+        Issue mockIssue = new Issue();
+        mockIssue.setId(issueId);
+        Project mockProject = new Project();
+        mockProject.setId(projectId);
+        mockIssue.setProject(mockProject);
+        mockIssue.setState(State.NEW);
+
+        when(issueRepository.findById(issueId)).thenReturn(Optional.of(mockIssue));
+
+        // When
+        boolean result = issueService.updateIssueState(projectId, issueId, memberId, role, newState);
+
+        // Then
+        assertFalse(result);
+        verify(issueRepository, times(0)).save(mockIssue);
+    }
+
+
 }

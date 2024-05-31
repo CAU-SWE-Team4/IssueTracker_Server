@@ -5,6 +5,7 @@ import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.dto.issue.IssueAssignRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
+import com.example.issuetracker_server.dto.issue.IssueStateRequest;
 import com.example.issuetracker_server.service.issue.IssueService;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectService;
@@ -127,13 +128,22 @@ public class IssueController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-//    @PutMapping("/{issueId}/state")
-//    public ResponseEntity<Void> updateIssueState(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
-//                                                 @RequestBody StateRequest request) {
-//        issueService.updateIssueState(projectId, issueId, id, pw, request);
-//        return ResponseEntity.ok().build();
-//    }
-//
+    @PutMapping("/{issueId}/state")
+    public ResponseEntity<Void> updateIssueState(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw,
+                                                 @RequestBody IssueStateRequest request) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Role> role = memberProjectService.getRole(id, projectId);
+        if (role.isEmpty())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        boolean result = issueService.updateIssueState(projectId, issueId, id, role.get(), request.getState());
+        if (result)
+            return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
 //    @DeleteMapping("/{issueId}")
 //    public ResponseEntity<Void> deleteIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw) {
 //        issueService.deleteIssue(projectId, issueId, id, pw);
