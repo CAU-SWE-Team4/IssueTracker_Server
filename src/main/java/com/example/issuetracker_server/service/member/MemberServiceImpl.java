@@ -2,6 +2,7 @@ package com.example.issuetracker_server.service.member;
 
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.member.MemberRepository;
+import com.example.issuetracker_server.domain.memberproject.MemberProjectRepository;
 import com.example.issuetracker_server.dto.member.MemberInfoDto;
 import com.example.issuetracker_server.dto.member.MemberSignUpRequestDto;
 import jakarta.transaction.Transactional;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final MemberProjectRepository memberProjectRepository;
 
     @Override
     public boolean login(String id, String pw) {
@@ -60,5 +62,19 @@ public class MemberServiceImpl implements MemberService {
         } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    @Transactional
+    public boolean isMemberOfProject(Long projectId, String id) {
+        if(memberProjectRepository.findByMemberIdAndProjectId(id, projectId).isPresent())
+            return true;
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public Optional<Member> getMember(String id) {
+        return memberRepository.findById(id);
     }
 }

@@ -30,6 +30,11 @@ public class IssueServiceImpl implements IssueService {
     private final ProjectRepository projectRepository;
     private final MemberProjectRepository memberProjectRepository;
 
+
+    public Optional<Issue> getIssue(Long issueId) {
+        return issueRepository.findById(issueId);
+    }
+
     @Override
     public boolean createIssue(Long projectId, String memberId, IssueCreateRequestDto request) {
         try {

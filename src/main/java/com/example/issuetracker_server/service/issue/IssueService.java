@@ -9,6 +9,9 @@ import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 
 import java.util.List;
 import java.util.Map;
+import com.example.issuetracker_server.domain.issue.Issue;
+import com.example.issuetracker_server.domain.member.Member;
+
 import java.util.Optional;
 
 public interface IssueService {
@@ -26,4 +29,5 @@ public interface IssueService {
     boolean updateIssue(String memberId, Long projectId, Long issueId, String title, String description);
 
     boolean updateIssueState(Long projectId, Long issueId, String id, Role role, State state);
+    Optional<Issue> getIssue(Long id);
 }
