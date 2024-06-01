@@ -214,7 +214,7 @@ public class IssueServiceImpl implements IssueService {
             return true;
         } else if (role == Role.DEV && issue.get().getAssignee() != null
                 && issue.get().getAssignee().getId().equals(id)
-                && issue.get().getState() == State.ASSIGNED && state == State.FIXED) {
+                && ((issue.get().getState() == State.ASSIGNED) ||(issue.get().getState() ==  State.REOPEN)) && state == State.FIXED) {
             issue.get().setState(State.FIXED);
             issueRepository.save(issue.get());
             return true;
