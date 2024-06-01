@@ -126,6 +126,8 @@ public class ProjectController {
             List<UserRoleDto> userRoles = memberProjects.stream()
                     .map(mp -> new UserRoleDto(mp.getMember().getId(), mp.getRole()))
                     .collect(Collectors.toList());
+//            Map<String, List<UserRoleDto>> response = new HashMap<>();
+//            response.put("members", userRoles);
             return ResponseEntity.status(HttpStatus.OK).body(userRoles);
         }
 
