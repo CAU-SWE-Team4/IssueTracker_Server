@@ -83,7 +83,7 @@ public class CommentControllerTest {
         when(memberService.getMember(anyString())).thenReturn(Optional.of(member));
         when(issueService.getIssue(anyLong())).thenReturn(Optional.of(issue));
 
-        mvc.perform(post(url + "1/issue/1/comment/")
+        mvc.perform(post(url + "1/issue/1/comment")
 
                 .param("id", "user1")
                 .param("pw","password")
@@ -97,7 +97,7 @@ public class CommentControllerTest {
     public void createComment_Unauthorized() throws Exception {
         when(memberService.login(anyString(), anyString())).thenReturn(false);
 
-        mvc.perform(post(url + "1/issue/1/comment/")
+        mvc.perform(post(url + "1/issue/1/comment")
                         .param("id", "user1")
                         .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ public class CommentControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(memberService.isMemberOfProject(anyLong(), anyString())).thenReturn(false);
 
-        mvc.perform(post(url + "1/issue/1/comment/")
+        mvc.perform(post(url + "1/issue/1/comment")
                         .param("id", "user1")
                         .param("pw", "password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,7 +143,7 @@ public class CommentControllerTest {
         when(memberService.isMemberOfProject(anyLong(), anyString())).thenReturn(true);
         when(commentService.findByIssueId(anyLong())).thenReturn((List<CommentResponseDto>) Arrays.asList(comment1, comment2));
 
-        mvc.perform(get(url + "1/issue/1/comment/")
+        mvc.perform(get(url + "1/issue/1/comment")
                         .param("id", "user1")
                         .param("pw", "password"))
                 .andExpect(status().isOk())
