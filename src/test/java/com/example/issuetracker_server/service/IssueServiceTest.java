@@ -60,7 +60,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.HIGH)
+                .priority(Priority.CRITICAL)
                 .state(State.NEW)
                 .build();
 
@@ -72,7 +72,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.MEDIUM)
+                .priority(Priority.MAJOR)
                 .state(State.NEW)
                 .build();
 
@@ -102,7 +102,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.LOW)
+                .priority(Priority.MINOR)
                 .state(State.NEW)
                 .build();
 
@@ -114,7 +114,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.MEDIUM)
+                .priority(Priority.MAJOR)
                 .state(State.NEW)
                 .build();
 
@@ -144,7 +144,7 @@ public class IssueServiceTest {
                 .reporter(new Member())
                 .assignee(assignee)
                 .fixer(null)
-                .priority(Priority.LOW)
+                .priority(Priority.MINOR)
                 .state(State.NEW)
                 .build();
 
@@ -156,7 +156,7 @@ public class IssueServiceTest {
                 .reporter(new Member())
                 .assignee(assignee)
                 .fixer(null)
-                .priority(Priority.MEDIUM)
+                .priority(Priority.MAJOR)
                 .state(State.NEW)
                 .build();
 
@@ -186,7 +186,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.LOW)
+                .priority(Priority.MINOR)
                 .state(State.NEW)
                 .build();
 
@@ -198,7 +198,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.MEDIUM)
+                .priority(Priority.MAJOR)
                 .state(State.NEW)
                 .build();
 
@@ -210,17 +210,17 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.MEDIUM)
+                .priority(Priority.MAJOR)
                 .state(State.ASSIGNED)
                 .build();
 
-        when(issueRepository.findByProjectIdAndState(projectId,  State.valueOf(filterValue)))
+        when(issueRepository.findByProjectIdAndState(projectId, State.valueOf(filterValue)))
                 .thenReturn(Arrays.asList(issue1, issue2));
 
         List<IssueResponseDto> result = issueService.getIssues(projectId, filterBy, filterValue);
 
         assertEquals(2, result.size());
-        verify(issueRepository, times(1)).findByProjectIdAndState(projectId,  State.valueOf(filterValue));
+        verify(issueRepository, times(1)).findByProjectIdAndState(projectId, State.valueOf(filterValue));
     }
 
     @Test
@@ -240,7 +240,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.LOW)
+                .priority(Priority.MINOR)
                 .state(State.NEW)
                 .build();
 
@@ -252,7 +252,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.MEDIUM)
+                .priority(Priority.MAJOR)
                 .state(State.ASSIGNED)
                 .build();
 
@@ -264,7 +264,7 @@ public class IssueServiceTest {
                 .reporter(reporter)
                 .assignee(null)
                 .fixer(null)
-                .priority(Priority.HIGH)
+                .priority(Priority.CRITICAL)
                 .state(State.CLOSED)
                 .build();
 
@@ -760,28 +760,28 @@ public class IssueServiceTest {
         Issue issueTodayClosed = new Issue();
         issueTodayClosed.setTitle("Issue Today Closed");
         issueTodayClosed.setDescription("Description");
-        issueTodayClosed.setPriority(Priority.MEDIUM);
+        issueTodayClosed.setPriority(Priority.MAJOR);
         issueTodayClosed.setState(State.CLOSED);
         issueTodayClosed.setCreatedDate(LocalDateTime.now());
 
         Issue issueTodayOpen = new Issue();
         issueTodayOpen.setTitle("Issue Today Open");
         issueTodayOpen.setDescription("Description");
-        issueTodayOpen.setPriority(Priority.HIGH);
+        issueTodayOpen.setPriority(Priority.CRITICAL);
         issueTodayOpen.setState(State.NEW);
         issueTodayOpen.setCreatedDate(LocalDateTime.now());
 
         Issue issueMonth = new Issue();
         issueMonth.setTitle("Issue Month");
         issueMonth.setDescription("Description");
-        issueMonth.setPriority(Priority.LOW);
+        issueMonth.setPriority(Priority.MINOR);
         issueMonth.setState(State.NEW);
         issueMonth.setCreatedDate(now.minusDays(31));
 
         Issue issueOld = new Issue();
         issueOld.setTitle("Issue Old");
         issueOld.setDescription("Description");
-        issueOld.setPriority(Priority.LOW);
+        issueOld.setPriority(Priority.MINOR);
         issueOld.setState(State.CLOSED);
         issueOld.setCreatedDate(now.minusYears(1));
 
@@ -827,21 +827,21 @@ public class IssueServiceTest {
         Issue issueTodayClosed = new Issue();
         issueTodayClosed.setTitle("Issue Today Closed");
         issueTodayClosed.setDescription("Description");
-        issueTodayClosed.setPriority(Priority.HIGH);
+        issueTodayClosed.setPriority(Priority.CRITICAL);
         issueTodayClosed.setState(State.CLOSED);
         issueTodayClosed.setCreatedDate(LocalDateTime.now());
 
         Issue issueWeekOpen = new Issue();
         issueWeekOpen.setTitle("Issue Week Open");
         issueWeekOpen.setDescription("Description");
-        issueWeekOpen.setPriority(Priority.MEDIUM);
+        issueWeekOpen.setPriority(Priority.MAJOR);
         issueWeekOpen.setState(State.NEW);
         issueWeekOpen.setCreatedDate(now.minusDays(31));
 
         Issue issueMonthClosed = new Issue();
         issueMonthClosed.setTitle("Issue Month Closed");
         issueMonthClosed.setDescription("Description");
-        issueMonthClosed.setPriority(Priority.LOW);
+        issueMonthClosed.setPriority(Priority.MINOR);
         issueMonthClosed.setState(State.CLOSED);
         issueMonthClosed.setCreatedDate(now.minusDays(62));
 
