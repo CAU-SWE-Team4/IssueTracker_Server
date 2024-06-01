@@ -233,13 +233,13 @@ public class ProjectControllerTest {
 
         ProjectRequestDto updateRequestDto = new ProjectRequestDto();
         updateRequestDto.setMembers(Arrays.asList(
-                        new ProjectRequestDto.Member("user1", Role.DEV),
-                        new ProjectRequestDto.Member("user2", Role.TESTER)
+                        new ProjectRequestDto.Member("minseok128", Role.DEV),
+                        new ProjectRequestDto.Member("lucete012", Role.TESTER)
                 ));
 
-        mvc.perform(put(url + "/1")
+        mvc.perform(put(url + "/18")
                         .param("id", "admin")
-                        .param("pw", "password")
+                        .param("pw", "admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateRequestDto)))
                 .andExpect(status().isOk());

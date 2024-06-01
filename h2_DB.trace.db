@@ -1,0 +1,9 @@
+2024-06-01 00:59:26.772007+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]MEMBER_PROJECT DELETE FROM PROJECT"; expected "MERGE"; SQL statement:
+MEMBER_PROJECT DELETE FROM PROJECT [42001-224]
+2024-06-01 01:34:01.470445+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE FROM PROJECT [*]WHEN ID < 18"; SQL statement:
+DELETE FROM PROJECT WHEN ID < 18 [42000-224]
+2024-06-01 01:34:37.192161+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE FROM PROJECT [*]WHEN ID < 18"; SQL statement:
+DELETE FROM PROJECT WHEN ID < 18 [42000-224]

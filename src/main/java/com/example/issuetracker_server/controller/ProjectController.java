@@ -77,12 +77,9 @@ public class ProjectController {
         Optional<Project> optionalProject = projectService.findById(projectId);
         if (optionalProject.isPresent()) {
             Project project = optionalProject.get();
-            if (requestDto.getTitle() != null) {
-                projectService.update(projectId, requestDto);
-                return ResponseEntity.status(HttpStatus.OK).build();
-            }
             if (requestDto.getMembers() != null) {
-                List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(projectId);
+                projectService.update(projectId, requestDto);
+                List<MemberProject> memberProjects = memberprojectService.getMemberProjectByProjectId(project.getId());
                 memberprojectService.deleteAll(memberProjects);
                 for (ProjectRequestDto.Member member : requestDto.getMembers()) {
                     memberprojectService.save(projectId, member);
