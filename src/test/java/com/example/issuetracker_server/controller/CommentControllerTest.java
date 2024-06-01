@@ -1,7 +1,6 @@
 package com.example.issuetracker_server.controller;
 
 import com.example.issuetracker_server.domain.comment.Comment;
-import com.example.issuetracker_server.domain.comment.CommentRepository;
 import com.example.issuetracker_server.domain.issue.Issue;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.dto.comment.CommentRequestDto;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,14 +22,12 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -67,6 +63,7 @@ public class CommentControllerTest {
     }
 
     String url = "http://localhost:" + port + "/project/";
+
     @Test
     public void createComment_Success() throws Exception {
         CommentRequestDto requestDto = new CommentRequestDto();
@@ -78,17 +75,17 @@ public class CommentControllerTest {
         Issue issue = new Issue();
         issue.setId(1L);
 
-        when(memberService.login(anyString(),anyString())).thenReturn(true);
-        when(memberService.isMemberOfProject(anyLong(),anyString())).thenReturn(true);
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
+        when(memberService.isMemberOfProject(anyLong(), anyString())).thenReturn(true);
         when(memberService.getMember(anyString())).thenReturn(Optional.of(member));
         when(issueService.getIssue(anyLong())).thenReturn(Optional.of(issue));
 
         mvc.perform(post(url + "1/issue/1/comment")
 
-                .param("id", "user1")
-                .param("pw","password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"content\":  \"Test Comment\"}"))
+                        .param("id", "user1")
+                        .param("pw", "password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":  \"Test Comment\"}"))
                 .andExpect(status().isOk());
         verify(commentService, times(1)).save(any(Comment.class));
     }

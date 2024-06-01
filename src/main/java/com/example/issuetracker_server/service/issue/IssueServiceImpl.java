@@ -22,8 +22,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.example.issuetracker_server.domain.issue.State.NEW;
-
 @Service
 @RequiredArgsConstructor
 public class IssueServiceImpl implements IssueService {
@@ -33,9 +31,9 @@ public class IssueServiceImpl implements IssueService {
     private final MemberRepository memberRepository;
 
     private final ProjectRepository projectRepository;
+
     private final MemberProjectRepository memberProjectRepository;
-
-
+    
     public Optional<Issue> getIssue(Long issueId) {
         return issueRepository.findById(issueId);
     }
@@ -70,8 +68,7 @@ public class IssueServiceImpl implements IssueService {
         if ((filterBy == null || filterBy.isEmpty()) || (filterValue == null || filterValue.isEmpty()))
 //            issues = issueRepository.findAll();
             issues = issueRepository.findByProjectId(projectId);
-        else
-        {
+        else {
             switch (Objects.requireNonNull(filterBy).toLowerCase()) {
                 case "title":
                     issues = issueRepository.findByProjectIdAndTitleContainingIgnoreCase(projectId, filterValue);
@@ -117,8 +114,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public IssueStatisticResponseDto getStatistic(Long ProjectId)
-    {
+    public IssueStatisticResponseDto getStatistic(Long ProjectId) {
         List<Issue> issues = issueRepository.findByProjectId(ProjectId);
 
         int dayIssues = (int) issues.stream()
