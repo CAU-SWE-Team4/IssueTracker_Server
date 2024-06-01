@@ -14,6 +14,7 @@ import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
 import com.example.issuetracker_server.dto.issue.IssueResponseDto;
 import com.example.issuetracker_server.dto.issue.IssueStatisticResponseDto;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    @Transactional
     public boolean createIssue(Long projectId, String memberId, IssueCreateRequestDto request) {
         try {
             Optional<Project> project = projectRepository.findById(projectId);
@@ -165,6 +167,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    @Transactional
     public boolean assignIssue(Long projectId, Long issueId, String memberId, Priority priority) {
         Optional<MemberProject> memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId);
         if (memberProject.isEmpty() || memberProject.get().getRole() != Role.DEV)
@@ -183,6 +186,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    @Transactional
     public boolean updateIssue(String id, Long projectId, Long issueId, String title, String description) {
         Optional<Issue> issue = issueRepository.findById(issueId);
         if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId)
@@ -196,6 +200,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    @Transactional
     public boolean updateIssueState(Long projectId, Long issueId, String id, Role role, State state) {
         Optional<Issue> issue = issueRepository.findById(issueId);
         if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId))
@@ -222,6 +227,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    @Transactional
     public boolean deleteIssue(Long projectId, Long issueId) {
         Optional<Issue> issue = issueRepository.findById(issueId);
         if (issue.isEmpty() || !Objects.equals(issue.get().getProject().getId(), projectId)) {
