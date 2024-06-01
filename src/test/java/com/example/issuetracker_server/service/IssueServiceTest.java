@@ -230,6 +230,7 @@ public class IssueServiceTest {
         Project project = new Project();
         Member reporter = new Member();
 
+
         Issue issue1 = Issue.builder()
                 .id(1L)
                 .project(project)
