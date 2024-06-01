@@ -6,5 +6,6 @@ public enum State {
     FIXED,
     RESOLVED,
     CLOSED,
-    DISPOSED
+    DISPOSED,
+    REOPEN
 }
