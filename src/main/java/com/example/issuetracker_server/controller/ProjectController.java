@@ -1,20 +1,15 @@
 package com.example.issuetracker_server.controller;
 
-import com.example.issuetracker_server.domain.member.Member;
-import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.memberproject.MemberProject;
 import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
-import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.dto.project.ProjectDto;
 import com.example.issuetracker_server.dto.project.ProjectRequestDto;
 import com.example.issuetracker_server.dto.project.UserRoleDto;
-import com.example.issuetracker_server.exception.MemberNotFoundException;
 import com.example.issuetracker_server.service.member.MemberService;
-import com.example.issuetracker_server.service.memberproject.MemberProjectServiceImpl;
+import com.example.issuetracker_server.service.memberproject.MemberProjectService;
 import com.example.issuetracker_server.service.project.ProjectService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +23,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/project")
 public class ProjectController {
     private final ProjectService projectService;
-    private final MemberProjectServiceImpl memberprojectService;
-    private final ProjectRepository projectRepository;
-    private final MemberRepository memberRepository;
+    private final MemberProjectService memberprojectService;
     private final MemberService memberService;
-
-    public Member getMember(String id) {
-        return memberRepository.findById(id)
-                .orElseThrow(() -> new MemberNotFoundException("Member Not Found"));
-    }
 
     @PostMapping
     public ResponseEntity<Void> save(@RequestBody ProjectRequestDto requestDto, @RequestParam String id, @RequestParam String pw) throws JsonProcessingException {

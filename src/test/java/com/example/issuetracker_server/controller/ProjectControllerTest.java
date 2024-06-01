@@ -16,18 +16,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,7 +33,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.example.issuetracker_server.domain.memberproject.Role.DEV;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -73,6 +69,7 @@ public class ProjectControllerTest {
     private ProjectRequestDto requestDto;
 
     String url = "http://localhost:" + port + "/project";
+
     @BeforeEach
     public void setUp() {
         String title = "project1";
@@ -88,15 +85,13 @@ public class ProjectControllerTest {
         MockitoAnnotations.openMocks(this);
 
 
-
     }
 
     @Test
     public void saveProject_Success() throws Exception {
         // given
-        when(memberService.login(anyString(),anyString())).thenReturn(true);
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(projectsService.saveDto(any(ProjectRequestDto.class))).thenReturn(1L);
-
 
 
         //when
@@ -145,7 +140,7 @@ public class ProjectControllerTest {
 
     @Test
     public void FindByUserAdmin_Success() throws Exception {
-        when(memberService.login(anyString(),anyString())).thenReturn(true);
+        when(memberService.login(anyString(), anyString())).thenReturn(true);
 
         Project project1 = new Project();
         project1.setId(1L);
@@ -242,9 +237,9 @@ public class ProjectControllerTest {
 
         ProjectRequestDto updateRequestDto = new ProjectRequestDto();
         updateRequestDto.setMembers(Arrays.asList(
-                        new ProjectRequestDto.Member("minseok128", DEV),
-                        new ProjectRequestDto.Member("lucete012", Role.TESTER)
-                ));
+                new ProjectRequestDto.Member("minseok128", DEV),
+                new ProjectRequestDto.Member("lucete012", Role.TESTER)
+        ));
 
         mvc.perform(put(url + "/18")
                         .param("id", "admin")
@@ -263,8 +258,8 @@ public class ProjectControllerTest {
         when(memberProjectService.getRole(anyString(), anyLong())).thenReturn(Optional.of(Role.TESTER));
 
         mvc.perform(delete(url + "/1")
-                .param("id", "user")
-                .param("pw", "wrongpassword"))
+                        .param("id", "user")
+                        .param("pw", "wrongpassword"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -274,8 +269,8 @@ public class ProjectControllerTest {
         when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
 
         mvc.perform(delete(url + "/1")
-                .param("id", "admin")
-                .param("pw", "password"))
+                        .param("id", "admin")
+                        .param("pw", "password"))
                 .andExpect(status().isNotFound());
     }
 
@@ -299,8 +294,8 @@ public class ProjectControllerTest {
         when(projectsService.findById(anyLong())).thenReturn(Optional.empty());
 
         mvc.perform(get(url + "/1/userRole")
-                .param("id", "user")
-                .param("pw", "password"))
+                        .param("id", "user")
+                        .param("pw", "password"))
                 .andExpect(status().isNotFound());
     }
 
