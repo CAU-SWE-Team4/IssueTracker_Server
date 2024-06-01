@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.issuetracker_server.domain.memberproject.Role.DEV;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -78,7 +79,7 @@ public class ProjectControllerTest {
         List<ProjectRequestDto.Member> members = new ArrayList<>();
 
         members.add(new ProjectRequestDto.Member("user1", Role.PL));
-        members.add(new ProjectRequestDto.Member("user2", Role.DEV));
+        members.add(new ProjectRequestDto.Member("user2", DEV));
         members.add(new ProjectRequestDto.Member("user3", Role.TESTER));
 
         requestDto = new ProjectRequestDto();
@@ -174,20 +175,28 @@ public class ProjectControllerTest {
 
     @Test
     public void updateProject_Success_TitleUpdate() throws Exception {
+        ProjectRequestDto requestDto = new ProjectRequestDto();
+        ProjectRequestDto.Member member = new ProjectRequestDto.Member();
+        member.setUser_id("lucete012");
+        member.setRole(DEV);
+        requestDto.setMembers(List.of(member));
+
+        Project project = new Project();
+        project.setId(1L);
+
         when(memberService.login(anyString(), anyString())).thenReturn(true);
-        when(projectsService.findById(anyLong())).thenReturn(Optional.of(new Project()));
+        when(projectsService.findById(anyLong())).thenReturn(Optional.of(project));
 
-        ProjectDto updateRequestDto = new ProjectDto();
-        updateRequestDto.setTitle("Updated Project Title");
-
-        mvc.perform(put(url + "/1")
+        mvc.perform(put("/project/{projectId}", 1L)
                         .param("id", "admin")
-                        .param("pw", "password")
+                        .param("pw", "adminPass")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(updateRequestDto)))
+                        .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk());
 
         verify(projectsService, times(1)).update(anyLong(), any(ProjectRequestDto.class));
+        verify(memberProjectService, times(1)).deleteAll(anyList());
+        verify(memberProjectService, times(1)).save(anyLong(), any(ProjectRequestDto.Member.class));
     }
 
     @Test
@@ -233,7 +242,7 @@ public class ProjectControllerTest {
 
         ProjectRequestDto updateRequestDto = new ProjectRequestDto();
         updateRequestDto.setMembers(Arrays.asList(
-                        new ProjectRequestDto.Member("minseok128", Role.DEV),
+                        new ProjectRequestDto.Member("minseok128", DEV),
                         new ProjectRequestDto.Member("lucete012", Role.TESTER)
                 ));
 
@@ -304,7 +313,7 @@ public class ProjectControllerTest {
         when(memberService.login(anyString(), anyString())).thenReturn(true);
         when(projectsService.findById(anyLong())).thenReturn(Optional.of(project1));
         when(memberProjectService.getMemberProjectByProjectId(anyLong())).thenReturn(Arrays.asList(
-                new MemberProject(new Member("user1", "user1", "user1", "user1"), project1, Role.DEV),
+                new MemberProject(new Member("user1", "user1", "user1", "user1"), project1, DEV),
                 new MemberProject(new Member("user2", "user2", "user2", "user1"), project1, Role.TESTER)
         ));
 
@@ -314,7 +323,7 @@ public class ProjectControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].user_id").value("user1"))
-                .andExpect(jsonPath("$[0].role").value(Role.DEV.name()))
+                .andExpect(jsonPath("$[0].role").value(DEV.name()))
                 .andExpect(jsonPath("$[1].user_id").value("user2"))
                 .andExpect(jsonPath("$[1].role").value(Role.TESTER.name()));
     }

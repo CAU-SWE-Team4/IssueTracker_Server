@@ -68,7 +68,8 @@ public class IssueServiceImpl implements IssueService {
         List<Issue> issues;
 
         if ((filterBy == null || filterBy.isEmpty()) || (filterValue == null || filterValue.isEmpty()))
-            issues = issueRepository.findAll();
+//            issues = issueRepository.findAll();
+            issues = issueRepository.findByProjectId(projectId);
         else
         {
             switch (Objects.requireNonNull(filterBy).toLowerCase()) {
