@@ -41,7 +41,7 @@ public class CommentController {
     @Autowired
     private IssueServiceImpl issueService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<?> createComment(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw, @RequestBody CommentRequestDto requestDto) {
         if(!memberService.login(id, pw)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -69,7 +69,7 @@ public class CommentController {
 
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<?> getComments(@PathVariable Long projectId, @PathVariable Long issueId, @RequestParam String id, @RequestParam String pw)
     {
         if(!memberService.login(id, pw)) {
