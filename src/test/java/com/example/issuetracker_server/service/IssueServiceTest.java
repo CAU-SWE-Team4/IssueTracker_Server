@@ -228,6 +228,7 @@ public class IssueServiceTest {
         Long projectId = 1L;
 
         Project project = new Project();
+        project.setId(projectId);
         Member reporter = new Member();
 
 
@@ -267,27 +268,27 @@ public class IssueServiceTest {
                 .state(State.CLOSED)
                 .build();
 
-        when(issueRepository.findAll()).thenReturn(Arrays.asList(issue1, issue2, issue3));
+        when(issueRepository.findByProjectId(projectId)).thenReturn(Arrays.asList(issue1, issue2, issue3));
 
         // Test with filterBy and filterValue both null
         List<IssueResponseDto> result = issueService.getIssues(projectId, null, null);
         assertEquals(3, result.size());
-        verify(issueRepository, times(1)).findAll();
+        verify(issueRepository, times(1)).findByProjectId(projectId);
 
         // Test with filterBy null and filterValue empty
         result = issueService.getIssues(projectId, null, "");
         assertEquals(3, result.size());
-        verify(issueRepository, times(2)).findAll();
+        verify(issueRepository, times(2)).findByProjectId(projectId);
 
         // Test with filterBy empty and filterValue null
         result = issueService.getIssues(projectId, "", null);
         assertEquals(3, result.size());
-        verify(issueRepository, times(3)).findAll();
+        verify(issueRepository, times(3)).findByProjectId(projectId);
 
         // Test with both filterBy and filterValue empty
         result = issueService.getIssues(projectId, "", "");
         assertEquals(3, result.size());
-        verify(issueRepository, times(4)).findAll();
+        verify(issueRepository, times(4)).findByProjectId(projectId);
     }
 
     @Test
