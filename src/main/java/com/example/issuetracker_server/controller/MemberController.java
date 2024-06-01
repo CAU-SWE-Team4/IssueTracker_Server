@@ -1,6 +1,5 @@
 package com.example.issuetracker_server.controller;
 
-import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.dto.member.MemberInfoDto;
 import com.example.issuetracker_server.dto.member.MemberLoginRequestDto;
 import com.example.issuetracker_server.dto.member.MemberSignUpRequestDto;
@@ -19,7 +18,6 @@ import java.util.Optional;
 public class MemberController {
 
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody MemberLoginRequestDto request) {

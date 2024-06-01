@@ -4,7 +4,6 @@ import com.example.issuetracker_server.domain.memberproject.Role;
 import com.example.issuetracker_server.domain.project.Project;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import org.springframework.web.service.annotation.GetExchange;
 
 import java.util.List;
 

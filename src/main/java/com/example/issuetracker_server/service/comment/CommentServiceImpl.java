@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +28,7 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     public List<CommentResponseDto> findByIssueId(Long issueId) {
-        List<CommentResponseDto> commentDtos = null;
+        List<CommentResponseDto> commentDtos = new ArrayList<>() ;
         List<Comment> comments = commentRepository.findByIssueId(issueId);
         for(Comment comment : comments) {
             CommentResponseDto commentResponseDto = new CommentResponseDto();

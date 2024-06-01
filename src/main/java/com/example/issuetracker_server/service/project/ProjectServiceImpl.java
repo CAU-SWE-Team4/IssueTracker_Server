@@ -1,6 +1,5 @@
 package com.example.issuetracker_server.service.project;
 
-import com.example.issuetracker_server.domain.memberproject.MemberProjectRepository;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import com.example.issuetracker_server.dto.project.ProjectRequestDto;
@@ -14,7 +13,6 @@ import java.util.Optional;
 @Service
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
-    private final MemberProjectRepository memberProjectRepository;
 
     @Override
     @Transactional
@@ -31,6 +29,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         return projectRepository.save(project).getId();
     }
+
     @Override
     @Transactional
     public Optional<Project> findById(Long id) {

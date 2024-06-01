@@ -1,12 +1,7 @@
 package com.example.issuetracker_server.controller;
 
-import com.example.issuetracker_server.domain.issue.IssueRepository;
 import com.example.issuetracker_server.domain.memberproject.Role;
-import com.example.issuetracker_server.dto.issue.IssueAssignRequestDto;
-import com.example.issuetracker_server.dto.issue.IssueCreateRequestDto;
-import com.example.issuetracker_server.dto.issue.IssueResponseDto;
-import com.example.issuetracker_server.dto.issue.IssueStateRequest;
-import com.example.issuetracker_server.dto.issue.IssueStatisticResponseDto;
+import com.example.issuetracker_server.dto.issue.*;
 import com.example.issuetracker_server.service.issue.IssueService;
 import com.example.issuetracker_server.service.member.MemberService;
 import com.example.issuetracker_server.service.memberproject.MemberProjectService;
@@ -29,7 +24,6 @@ public class IssueController {
     private final MemberService memberService;
 
     private final MemberProjectService memberProjectService;
-    private final IssueRepository issueRepository;
 
     @PostMapping
     public ResponseEntity<Void> createIssue(@PathVariable Long projectId, @RequestParam String id, @RequestParam String pw,

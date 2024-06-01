@@ -1,10 +1,9 @@
 package com.example.issuetracker_server.dto.project;
 
-import com.example.issuetracker_server.domain.project.Project;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
-
-import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
