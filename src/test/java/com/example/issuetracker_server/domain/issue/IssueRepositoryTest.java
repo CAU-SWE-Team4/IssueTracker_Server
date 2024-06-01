@@ -5,10 +5,10 @@ import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Optional;
 
@@ -47,7 +47,7 @@ public class IssueRepositoryTest {
                 .project(project)
                 .reporter(reporter)
                 .state(State.NEW)
-                .priority(Priority.HIGH)
+                .priority(Priority.CRITICAL)
                 .build();
 
         // When
@@ -80,19 +80,19 @@ public class IssueRepositoryTest {
                 .project(project)
                 .reporter(reporter)
                 .state(State.NEW)
-                .priority(Priority.MEDIUM)
+                .priority(Priority.MAJOR)
                 .build());
 
         // When
         issue.setTitle("Updated Title");
-        issue.setPriority(Priority.LOW);
+        issue.setPriority(Priority.MINOR);
         Issue updatedIssue = issueRepository.save(issue);
         Optional<Issue> foundIssue = issueRepository.findById(updatedIssue.getId());
 
         // Then
         assertThat(foundIssue).isPresent();
         assertThat(foundIssue.get().getTitle()).isEqualTo("Updated Title");
-        assertThat(foundIssue.get().getPriority()).isEqualTo(Priority.LOW);
+        assertThat(foundIssue.get().getPriority()).isEqualTo(Priority.MINOR);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class IssueRepositoryTest {
                 .project(project)
                 .reporter(reporter)
                 .state(State.CLOSED)
-                .priority(Priority.LOW)
+                .priority(Priority.MINOR)
                 .build());
 
         // When

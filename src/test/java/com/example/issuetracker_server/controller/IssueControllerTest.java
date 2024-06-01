@@ -431,7 +431,7 @@ public class IssueControllerTest {
         Long issueId = 1L;
         IssueAssignRequestDto request = new IssueAssignRequestDto();
         request.setUser_id("user1");
-        request.setPriority(Priority.HIGH);
+        request.setPriority(Priority.CRITICAL);
 
         when(memberService.login(id, pw)).thenReturn(false);
 
@@ -456,7 +456,7 @@ public class IssueControllerTest {
         Long issueId = 1L;
         IssueAssignRequestDto request = new IssueAssignRequestDto();
         request.setUser_id("user1");
-        request.setPriority(Priority.HIGH);
+        request.setPriority(Priority.CRITICAL);
 
         when(memberService.login(id, pw)).thenReturn(true);
         when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.TESTER));
@@ -482,7 +482,7 @@ public class IssueControllerTest {
         Long issueId = 1L;
         IssueAssignRequestDto request = new IssueAssignRequestDto();
         request.setUser_id("user1");
-        request.setPriority(Priority.HIGH);
+        request.setPriority(Priority.CRITICAL);
 
         when(memberService.login(id, pw)).thenReturn(true);
         when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));
@@ -509,7 +509,7 @@ public class IssueControllerTest {
         Long issueId = 1L;
         IssueAssignRequestDto request = new IssueAssignRequestDto();
         request.setUser_id("user1");
-        request.setPriority(Priority.HIGH);
+        request.setPriority(Priority.CRITICAL);
 
         when(memberService.login(id, pw)).thenReturn(true);
         when(memberProjectService.getRole(id, projectId)).thenReturn(Optional.of(Role.PL));

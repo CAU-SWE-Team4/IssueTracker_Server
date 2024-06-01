@@ -9,10 +9,10 @@ import com.example.issuetracker_server.domain.member.MemberRepository;
 import com.example.issuetracker_server.domain.project.Project;
 import com.example.issuetracker_server.domain.project.ProjectRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Optional;
 
@@ -54,7 +54,7 @@ public class CommentRepositoryTest {
                 .project(project)
                 .reporter(author)
                 .state(State.NEW)
-                .priority(Priority.HIGH)
+                .priority(Priority.CRITICAL)
                 .build());
 
         Comment comment = Comment.builder()
@@ -93,7 +93,7 @@ public class CommentRepositoryTest {
                 .project(project)
                 .reporter(author)
                 .state(State.NEW)
-                .priority(Priority.HIGH)
+                .priority(Priority.CRITICAL)
                 .build());
 
         Comment comment = commentRepository.save(Comment.builder()
@@ -132,7 +132,7 @@ public class CommentRepositoryTest {
                 .project(project)
                 .reporter(author)
                 .state(State.NEW)
-                .priority(Priority.HIGH)
+                .priority(Priority.CRITICAL)
                 .build());
 
         Comment comment = commentRepository.save(Comment.builder()
