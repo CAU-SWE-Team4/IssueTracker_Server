@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -40,7 +41,15 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping
+    public ResponseEntity<List<MemberInfoDto>> getUsers(@RequestParam String id, @RequestParam String pw) {
+        if (!memberService.login(id, pw))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        return ResponseEntity.ok(memberService.getAllMembers());
+    }
+
+    @GetMapping("/{userId}")
     public ResponseEntity<?> getUserInfo(
             @PathVariable String userId,
             @RequestParam String id,

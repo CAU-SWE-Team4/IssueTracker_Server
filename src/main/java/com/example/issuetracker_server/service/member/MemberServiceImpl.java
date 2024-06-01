@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -47,6 +49,18 @@ public class MemberServiceImpl implements MemberService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    @Transactional
+    public List<MemberInfoDto> getAllMembers() {
+        List<Member> members = memberRepository.findAll();
+        List<MemberInfoDto> memberInfoDtos = new ArrayList<>();
+        for (Member member : members) {
+            MemberInfoDto memberInfoDto = new MemberInfoDto(member.getId(), member.getName(), member.getMail());
+            memberInfoDtos.add(memberInfoDto);
+        }
+        return memberInfoDtos;
     }
 
     @Override
