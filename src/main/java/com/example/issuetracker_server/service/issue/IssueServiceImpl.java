@@ -54,7 +54,7 @@ public class IssueServiceImpl implements IssueService {
             issue.setReporter(member.get());
             issue.setTitle(request.getTitle());
             issue.setDescription(request.getDescription());
-            issue.setState(NEW);
+            issue.setState(State.NEW);
             issueRepository.save(issue);
 
             return true;
