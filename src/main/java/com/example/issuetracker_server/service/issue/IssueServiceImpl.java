@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.example.issuetracker_server.domain.issue.State.NEW;
+
 @Service
 @RequiredArgsConstructor
 public class IssueServiceImpl implements IssueService {
@@ -48,6 +50,7 @@ public class IssueServiceImpl implements IssueService {
             issue.setReporter(member.get());
             issue.setTitle(request.getTitle());
             issue.setDescription(request.getDescription());
+            issue.setState(NEW);
             issueRepository.save(issue);
 
             return true;

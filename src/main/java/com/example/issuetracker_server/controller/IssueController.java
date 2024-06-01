@@ -48,9 +48,8 @@ public class IssueController {
     }
 
 
-    @GetMapping("/{issueId}")
+    @GetMapping("")
     public ResponseEntity<List<IssueResponseDto>> getIssues(@PathVariable Long projectId,
-                                                            @PathVariable Long issueId,
                                                             @RequestParam String id,
                                                             @RequestParam String pw,
                                                             @RequestParam(required = false) String filterBy,
