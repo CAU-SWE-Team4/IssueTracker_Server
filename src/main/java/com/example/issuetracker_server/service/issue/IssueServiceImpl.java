@@ -181,7 +181,8 @@ public class IssueServiceImpl implements IssueService {
 
         issue.get().setAssignee(assignee);
         issue.get().setPriority(priority);
-        issue.get().setState(State.ASSIGNED);
+        if(issue.get().getState() == State.NEW)
+            issue.get().setState(State.ASSIGNED);
         issueRepository.save(issue.get());
         return true;
     }
@@ -212,13 +213,13 @@ public class IssueServiceImpl implements IssueService {
             issueRepository.save(issue.get());
             return true;
         } else if (role == Role.DEV && issue.get().getAssignee() != null
-                && !issue.get().getAssignee().getId().equals(id)
+                && issue.get().getAssignee().getId().equals(id)
                 && issue.get().getState() == State.ASSIGNED && state == State.FIXED) {
             issue.get().setState(State.FIXED);
             issueRepository.save(issue.get());
             return true;
         } else if (role == Role.TESTER && issue.get().getAssignee() != null
-                && !issue.get().getReporter().getId().equals(id)
+                && issue.get().getReporter().getId().equals(id)
                 && issue.get().getState() == State.FIXED && state == State.RESOLVED) {
             issue.get().setState(State.RESOLVED);
             issueRepository.save(issue.get());
