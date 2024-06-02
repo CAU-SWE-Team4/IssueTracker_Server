@@ -4,6 +4,7 @@ import com.example.issuetracker_server.domain.issue.State;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @AllArgsConstructor

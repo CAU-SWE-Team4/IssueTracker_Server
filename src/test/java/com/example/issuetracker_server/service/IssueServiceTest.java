@@ -618,7 +618,7 @@ public class IssueServiceTest {
         Project mockProject = new Project();
         mockProject.setId(projectId);
         Member mockAssignee = new Member();
-        mockAssignee.setId("differentDev123");
+        mockAssignee.setId("dev123");
         mockIssue.setAssignee(mockAssignee);
         mockIssue.setProject(mockProject);
         mockIssue.setState(State.ASSIGNED);
@@ -648,7 +648,7 @@ public class IssueServiceTest {
         Project mockProject = new Project();
         mockProject.setId(projectId);
         Member mockReporter = new Member();
-        mockReporter.setId("differentTester123");
+        mockReporter.setId("tester123");
         Member mockAssignee = new Member();
         mockAssignee.setId("assignee123");
         mockIssue.setReporter(mockReporter);
