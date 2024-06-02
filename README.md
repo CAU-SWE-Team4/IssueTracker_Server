@@ -22,7 +22,7 @@ This project was developed as a part of Software Engineering. The objective was 
 
 - **Admin**
     - Create, edit, and delete projects
-    - Add accounts and roles related to the project
+    - Add accounts and roles related to the project (Admin must be assigned ADMIN !!!)
 - **Project Lead (PL)**
     - Delete issues
     - Assign Dev to issues with status NEW
