@@ -1,10 +1,13 @@
 package com.example.issuetracker_server.domain.issue;
 
 import com.example.issuetracker_server.domain.BaseTimeEntity;
+import com.example.issuetracker_server.domain.comment.Comment;
 import com.example.issuetracker_server.domain.member.Member;
 import com.example.issuetracker_server.domain.project.Project;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -46,4 +49,7 @@ public class Issue extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private State state;
+
+    @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 }
