@@ -414,7 +414,6 @@ public class IssueServiceTest {
         assertEquals("user2", recommendedAssignees.get(2));
         assertEquals("user5", recommendedAssignees.get(3));
         assertEquals("user1", recommendedAssignees.get(4));
-
 //        Member ID: user6, Issue Count: 0
 //        Member ID: user3, Issue Count: 1
 //        Member ID: user2, Issue Count: 2
@@ -472,26 +471,26 @@ public class IssueServiceTest {
         assertEquals("user5", recommendedAssignees.get(3));
         assertEquals("user14", recommendedAssignees.get(4));
 
-//        Member ID: user15, Issue Count: 2
-//        Member ID: user20, Issue Count: 2
-//        Member ID: user10, Issue Count: 3
-//        Member ID: user5, Issue Count: 3
-//        Member ID: user14, Issue Count: 4
-//        Member ID: user19, Issue Count: 4
-//        Member ID: user13, Issue Count: 6
-//        Member ID: user18, Issue Count: 6
-//        Member ID: user4, Issue Count: 6
-//        Member ID: user9, Issue Count: 6
-//        Member ID: user12, Issue Count: 8
-//        Member ID: user17, Issue Count: 8
-//        Member ID: user3, Issue Count: 9
-//        Member ID: user8, Issue Count: 9
-//        Member ID: user11, Issue Count: 10
-//        Member ID: user16, Issue Count: 10
-//        Member ID: user2, Issue Count: 12
-//        Member ID: user7, Issue Count: 12
-//        Member ID: user1, Issue Count: 15
-//        Member ID: user6, Issue Count: 15
+//        Member ID: user15, Score: 2
+//        Member ID: user20, Score: 2
+//        Member ID: user10, Score: 3
+//        Member ID: user5, Score: 3
+//        Member ID: user14, Score: 4
+//        Member ID: user19, Score: 4
+//        Member ID: user13, Score: 6
+//        Member ID: user18, Score: 6
+//        Member ID: user4, Score: 6
+//        Member ID: user9, Score: 6
+//        Member ID: user12, Score: 8
+//        Member ID: user17, Score: 8
+//        Member ID: user3, Score: 9
+//        Member ID: user8, Score: 9
+//        Member ID: user11, Score: 10
+//        Member ID: user16, Score: 10
+//        Member ID: user2, Score: 12
+//        Member ID: user7, Score: 12
+//        Member ID: user1, Score: 15
+//        Member ID: user6, Score: 15
     }
 
 

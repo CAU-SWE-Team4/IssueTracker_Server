@@ -158,10 +158,10 @@ public class IssueServiceImpl implements IssueService {
                 .sorted(Map.Entry.<Member, Long>comparingByValue()
                         .thenComparing(entry -> entry.getKey().getId()))
                 .toList();
-        // 정렬된 리스트 출력
-        sortedAssigneeList.forEach(entry ->
-                System.out.println("Member ID: " + entry.getKey().getId() + ", Issue Count: " + entry.getValue())
-        );
+//        // 정렬된 리스트 출력
+//        sortedAssigneeList.forEach(entry ->
+//                System.out.println("Member ID: " + entry.getKey().getId() + ", Score: " + entry.getValue())
+//        );
 
         Map<String, List<String>> response = new HashMap<>();
         response.put("dev_ids", sortedAssigneeList.stream()
