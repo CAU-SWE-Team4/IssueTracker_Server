@@ -33,7 +33,7 @@ public class IssueServiceImpl implements IssueService {
     private final ProjectRepository projectRepository;
 
     private final MemberProjectRepository memberProjectRepository;
-    
+
     public Optional<Issue> getIssue(Long issueId) {
         return issueRepository.findById(issueId);
     }
@@ -150,7 +150,7 @@ public class IssueServiceImpl implements IssueService {
         // 이슈의 assignee에 따라 assigneeCount 맵의 값을 증가
         issues.forEach(issue -> {
             Member assignee = issue.getAssignee();
-            assigneeCount.put(assignee, assigneeCount.get(assignee) + 1);
+            assigneeCount.put(assignee, assigneeCount.get(assignee) + Priority.toValue(issue.getPriority()));
         });
 
         // 결과를 이슈 수에 따라 오름차순으로 정렬
@@ -158,6 +158,10 @@ public class IssueServiceImpl implements IssueService {
                 .sorted(Map.Entry.<Member, Long>comparingByValue()
                         .thenComparing(entry -> entry.getKey().getId()))
                 .toList();
+        // 정렬된 리스트 출력
+        sortedAssigneeList.forEach(entry ->
+                System.out.println("Member ID: " + entry.getKey().getId() + ", Issue Count: " + entry.getValue())
+        );
 
         Map<String, List<String>> response = new HashMap<>();
         response.put("dev_ids", sortedAssigneeList.stream()
@@ -181,7 +185,7 @@ public class IssueServiceImpl implements IssueService {
 
         issue.get().setAssignee(assignee);
         issue.get().setPriority(priority);
-        if(issue.get().getState() == State.NEW)
+        if (issue.get().getState() == State.NEW)
             issue.get().setState(State.ASSIGNED);
         issueRepository.save(issue.get());
         return true;
@@ -214,7 +218,7 @@ public class IssueServiceImpl implements IssueService {
             return true;
         } else if (role == Role.DEV && issue.get().getAssignee() != null
                 && issue.get().getAssignee().getId().equals(id)
-                && ((issue.get().getState() == State.ASSIGNED) ||(issue.get().getState() ==  State.REOPEN)) && state == State.FIXED) {
+                && ((issue.get().getState() == State.ASSIGNED) || (issue.get().getState() == State.REOPEN)) && state == State.FIXED) {
             issue.get().setState(State.FIXED);
             issueRepository.save(issue.get());
             return true;
