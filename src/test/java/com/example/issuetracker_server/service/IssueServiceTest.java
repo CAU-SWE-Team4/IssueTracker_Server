@@ -19,10 +19,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -314,13 +312,13 @@ public class IssueServiceTest {
         List<MemberProject> memberProjects = Arrays.asList(mp1, mp2, mp3, mp4, mp5, mp6);
         when(memberProjectRepository.findByProjectIdAndRole(projectId, Role.DEV)).thenReturn(memberProjects);
 
-        Issue issue1 = Issue.builder().assignee(member1).build();
-        Issue issue2 = Issue.builder().assignee(member1).build();
-        Issue issue3 = Issue.builder().assignee(member2).build();
-        Issue issue4 = Issue.builder().assignee(member3).build();
-        Issue issue5 = Issue.builder().assignee(member4).build();
-        Issue issue6 = Issue.builder().assignee(member4).build();
-        Issue issue7 = Issue.builder().assignee(member5).build();
+        Issue issue1 = Issue.builder().assignee(member1).priority(Priority.MAJOR).build();
+        Issue issue2 = Issue.builder().assignee(member1).priority(Priority.MAJOR).build();
+        Issue issue3 = Issue.builder().assignee(member2).priority(Priority.MAJOR).build();
+        Issue issue4 = Issue.builder().assignee(member3).priority(Priority.MAJOR).build();
+        Issue issue5 = Issue.builder().assignee(member4).priority(Priority.MAJOR).build();
+        Issue issue6 = Issue.builder().assignee(member4).priority(Priority.MAJOR).build();
+        Issue issue7 = Issue.builder().assignee(member5).priority(Priority.MAJOR).build();
 
         List<Issue> issues = Arrays.asList(issue1, issue2, issue3, issue4, issue5, issue6, issue7);
         when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
@@ -356,10 +354,10 @@ public class IssueServiceTest {
         List<MemberProject> memberProjects = Arrays.asList(mp1, mp2, mp3, mp4);
         when(memberProjectRepository.findByProjectIdAndRole(projectId, Role.DEV)).thenReturn(memberProjects);
 
-        Issue issue1 = Issue.builder().assignee(member1).build();
-        Issue issue2 = Issue.builder().assignee(member2).build();
-        Issue issue3 = Issue.builder().assignee(member3).build();
-        Issue issue4 = Issue.builder().assignee(member4).build();
+        Issue issue1 = Issue.builder().assignee(member1).priority(Priority.MAJOR).build();
+        Issue issue2 = Issue.builder().assignee(member2).priority(Priority.MAJOR).build();
+        Issue issue3 = Issue.builder().assignee(member3).priority(Priority.MAJOR).build();
+        Issue issue4 = Issue.builder().assignee(member4).priority(Priority.MAJOR).build();
 
         List<Issue> issues = Arrays.asList(issue1, issue2, issue3, issue4);
         when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
@@ -371,6 +369,130 @@ public class IssueServiceTest {
         assertEquals(4, recommendedAssignees.size());
         assertTrue(recommendedAssignees.containsAll(Arrays.asList("user1", "user2", "user3", "user4")));
     }
+
+    @Test
+    public void testGetRecommendAssigneeDiffPriority() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        Member member1 = Member.builder().id("user1").build();
+        Member member2 = Member.builder().id("user2").build();
+        Member member3 = Member.builder().id("user3").build();
+        Member member4 = Member.builder().id("user4").build();
+        Member member5 = Member.builder().id("user5").build();
+        Member member6 = Member.builder().id("user6").build();
+
+        MemberProject mp1 = MemberProject.builder().role(Role.DEV).member(member1).build();
+        MemberProject mp2 = MemberProject.builder().role(Role.DEV).member(member2).build();
+        MemberProject mp3 = MemberProject.builder().role(Role.DEV).member(member3).build();
+        MemberProject mp4 = MemberProject.builder().role(Role.DEV).member(member4).build();
+        MemberProject mp5 = MemberProject.builder().role(Role.DEV).member(member5).build();
+        MemberProject mp6 = MemberProject.builder().role(Role.DEV).member(member6).build();
+
+        List<MemberProject> memberProjects = Arrays.asList(mp1, mp2, mp3, mp4, mp5, mp6);
+        when(memberProjectRepository.findByProjectIdAndRole(projectId, Role.DEV)).thenReturn(memberProjects);
+
+        Issue issue1 = Issue.builder().assignee(member1).priority(Priority.MAJOR).build();
+        Issue issue2 = Issue.builder().assignee(member1).priority(Priority.CRITICAL).build();
+        Issue issue3 = Issue.builder().assignee(member2).priority(Priority.MINOR).build();
+        Issue issue4 = Issue.builder().assignee(member3).priority(Priority.TRIVIAL).build();
+        Issue issue5 = Issue.builder().assignee(member4).priority(Priority.BLOCKER).build();
+        Issue issue6 = Issue.builder().assignee(member4).priority(Priority.MAJOR).build();
+        Issue issue7 = Issue.builder().assignee(member5).priority(Priority.MAJOR).build();
+
+        List<Issue> issues = Arrays.asList(issue1, issue2, issue3, issue4, issue5, issue6, issue7);
+        when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
+
+        // When
+        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId).get("dev_ids");
+
+        // Then
+        assertEquals(5, recommendedAssignees.size());
+        assertEquals("user6", recommendedAssignees.get(0));
+        assertEquals("user3", recommendedAssignees.get(1));
+        assertEquals("user2", recommendedAssignees.get(2));
+        assertEquals("user5", recommendedAssignees.get(3));
+        assertEquals("user1", recommendedAssignees.get(4));
+//        Member ID: user6, Issue Count: 0
+//        Member ID: user3, Issue Count: 1
+//        Member ID: user2, Issue Count: 2
+//        Member ID: user5, Issue Count: 3
+//        Member ID: user1, Issue Count: 7
+//        Member ID: user4, Issue Count: 8
+    }
+
+    @Test
+    public void testGetRecommendAssigneeDiffPriorityBig() {
+        // Given
+        Long projectId = 1L;
+        Long issueId = 1L;
+
+        List<Member> members = new ArrayList<>();
+        List<MemberProject> memberProjects = new ArrayList<>();
+        for (int i = 1; i <= 20; i++) {
+            Member member = Member.builder().id("user" + i).build();
+            members.add(member);
+            memberProjects.add(MemberProject.builder().role(Role.DEV).member(member).build());
+        }
+
+        when(memberProjectRepository.findByProjectIdAndRole(projectId, Role.DEV)).thenReturn(memberProjects);
+
+        List<Issue> issues = new ArrayList<>();
+        Priority[] priorities = Priority.values();
+        for (int i = 0; i < 50; i++) {
+            Member assignee = members.get(i % 20);
+            Priority priority = priorities[i % priorities.length];
+            issues.add(Issue.builder().assignee(assignee).priority(priority).build());
+        }
+
+        when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
+
+        // When
+        List<String> recommendedAssignees = issueService.getRecommendAssignee(projectId, issueId).get("dev_ids");
+
+        // Then
+        System.out.println("Recommended Assignees: " + recommendedAssignees);
+        assertEquals(5, recommendedAssignees.size());
+        // 각 유저의 이슈 수를 확인하여 예상 순서대로 추천되는지 확인
+        Map<String, Long> assigneeIssueCount = issues.stream()
+                .collect(Collectors.groupingBy(issue -> issue.getAssignee().getId(), Collectors.counting()));
+
+        List<Map.Entry<String, Long>> sortedAssignees = assigneeIssueCount.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue()
+                        .thenComparing(Map.Entry::getKey))
+                .toList();
+
+        // Then
+        assertEquals(5, recommendedAssignees.size());
+        assertEquals("user15", recommendedAssignees.get(0));
+        assertEquals("user20", recommendedAssignees.get(1));
+        assertEquals("user10", recommendedAssignees.get(2));
+        assertEquals("user5", recommendedAssignees.get(3));
+        assertEquals("user14", recommendedAssignees.get(4));
+
+//        Member ID: user15, Score: 2
+//        Member ID: user20, Score: 2
+//        Member ID: user10, Score: 3
+//        Member ID: user5, Score: 3
+//        Member ID: user14, Score: 4
+//        Member ID: user19, Score: 4
+//        Member ID: user13, Score: 6
+//        Member ID: user18, Score: 6
+//        Member ID: user4, Score: 6
+//        Member ID: user9, Score: 6
+//        Member ID: user12, Score: 8
+//        Member ID: user17, Score: 8
+//        Member ID: user3, Score: 9
+//        Member ID: user8, Score: 9
+//        Member ID: user11, Score: 10
+//        Member ID: user16, Score: 10
+//        Member ID: user2, Score: 12
+//        Member ID: user7, Score: 12
+//        Member ID: user1, Score: 15
+//        Member ID: user6, Score: 15
+    }
+
 
     @Test
     public void testGetRecommendAssignee_SomeWithIssues() {
@@ -393,10 +515,10 @@ public class IssueServiceTest {
         List<MemberProject> memberProjects = Arrays.asList(mp1, mp2, mp3, mp4, mp5);
         when(memberProjectRepository.findByProjectIdAndRole(projectId, Role.DEV)).thenReturn(memberProjects);
 
-        Issue issue1 = Issue.builder().assignee(member1).build();
-        Issue issue2 = Issue.builder().assignee(member1).build();
-        Issue issue3 = Issue.builder().assignee(member2).build();
-        Issue issue4 = Issue.builder().assignee(member3).build();
+        Issue issue1 = Issue.builder().assignee(member1).priority(Priority.MAJOR).build();
+        Issue issue2 = Issue.builder().assignee(member1).priority(Priority.MAJOR).build();
+        Issue issue3 = Issue.builder().assignee(member2).priority(Priority.MAJOR).build();
+        Issue issue4 = Issue.builder().assignee(member3).priority(Priority.MAJOR).build();
 
         List<Issue> issues = Arrays.asList(issue1, issue2, issue3, issue4);
         when(issueRepository.findByProjectId(projectId)).thenReturn(issues);
