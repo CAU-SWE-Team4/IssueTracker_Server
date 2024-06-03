@@ -98,7 +98,8 @@ public class ProjectControllerTest {
         mvc.perform(post(url)
                         .param("id", "admin")
                         .param("pw", "password")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8).content(new ObjectMapper().writeValueAsString(requestDto)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk());
 
         //then
@@ -122,11 +123,10 @@ public class ProjectControllerTest {
         mvc.perform(post(url)
                         .param("id", "user")
                         .param("pw", "pw")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8).content(new ObjectMapper().writeValueAsString(requestDto)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(requestDto)))
+                //then
                 .andExpect(status().isUnauthorized());
-
-        //then
-
     }
 
     @Test

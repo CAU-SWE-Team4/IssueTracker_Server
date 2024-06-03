@@ -3007,3 +3007,27 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: /Users/kim-yeoji
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 138 more
+2024-06-02 01:55:39.292513+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CONSTRAINTS" not found; SQL statement:
+SELECT * FROM INFORMATION_SCHEMA.CONSTRAINTS WHERE TABLE_NAME = 'ISSUE' [42102-224]
+2024-06-02 01:55:59.942483+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CONSTRAINTS" not found; SQL statement:
+SELECT * FROM INFORMATION_SCHEMA.CONSTRAINTS WHERE TABLE_NAME =ISSUE [42102-224]
+2024-06-02 21:20:42.363547+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE FROM ISSUE PROJECT_ID[*]>=5"; SQL statement:
+DELETE FROM ISSUE PROJECT_ID>=5 [42000-224]
+2024-06-02 21:21:00.049885+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE FROM COMMENT PROJECT_ID[*]>=5"; SQL statement:
+DELETE FROM COMMENT PROJECT_ID>=5 [42000-224]
+2024-06-02 21:21:04.642438+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE FROM COMMENT PROJECT_ID[*]>5"; SQL statement:
+DELETE FROM COMMENT PROJECT_ID>5 [42000-224]
+2024-06-02 21:21:52.295907+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE FROM ISSUE PROJECT_ID [*]> 4"; SQL statement:
+DELETE FROM ISSUE PROJECT_ID > 4 [42000-224]
+2024-06-02 21:22:00.663313+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE FROM ISSUE PROJECT_ID[*]>4"; SQL statement:
+DELETE FROM ISSUE PROJECT_ID>4 [42000-224]
+2024-06-03 03:23:27.465611+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE [*]* FROM MEMBER_PROJECT"; expected "identifier"; SQL statement:
+DELETE * FROM MEMBER_PROJECT [42001-224]
