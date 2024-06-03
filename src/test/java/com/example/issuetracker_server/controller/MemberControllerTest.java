@@ -171,7 +171,8 @@ public class MemberControllerTest {
         // Given
         String userId = "testUser";
         when(memberService.login("admin", "adminPass")).thenReturn(true);
-        Optional<MemberInfoDto> optionalMemberInfo = Optional.of(new MemberInfoDto("testUser", "Test User", "testuser@example.com"));
+        Optional<MemberInfoDto> optionalMemberInfo =
+                Optional.of(new MemberInfoDto("testUser", "Test User", "testuser@example.com"));
         when(memberService.getUserInfo(userId)).thenReturn(optionalMemberInfo);
 
         // When
